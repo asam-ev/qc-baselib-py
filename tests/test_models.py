@@ -5,41 +5,14 @@ from qc_baselib.models import config, report
 
 @pytest.fixture
 def demo_config() -> str:
-    # dump to text file on test/data and load fpr the test
-    return """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<!--
-Copyright 2023 CARIAD SE.
-
-This Source Code Form is subject to the terms of the Mozilla
-Public License, v. 2.0. If a copy of the MPL was not distributed
-with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
--->
-<Config>
-
-  <Param name="XodrFile" value="../stimuli/xodr_examples/three_connected_roads_with_steps.xodr"/>
-
-  <CheckerBundle application="DemoCheckerBundle">
-    <Param name="strResultFile" value="DemoCheckerBundle.xqar"/>
-    <Checker checkerId="exampleChecker" maxLevel="1" minLevel="3"/>
-  </CheckerBundle>
-
-</Config>
-"""
+    with open("tests/data/DemoCheckerBundle_config.xml", "rb") as config_xml_file:
+        return config_xml_file.read()
 
 
 @pytest.fixture
 def demo_report() -> str:
-    return """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<CheckerResults version="1.0.0">
-
-  <CheckerBundle build_date="" description="" name="DemoCheckerBundle" summary="Found 1 issue" version="">
-    <Checker checkerId="exampleChecker" description="This is a description" summary="">
-      <Issue description="This is an information from the demo usecase" issueId="0" level="3"/>
-    </Checker>
-  </CheckerBundle>
-
-</CheckerResults>
-"""
+    with open("tests/data/DemoCheckerBundle.xqar", "rb") as report_xml_file:
+        return report_xml_file.read()
 
 
 def test_config_model_load(demo_config: str) -> None:
