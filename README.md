@@ -11,7 +11,7 @@ The library features the main interfaces needed to implement an application:
 
 ## Installation
 
-#TODO: Add to pip (need to align how it will be done)
+**TODO**: Add to Pypi (need to align how it will be done)
 
 ```bash
 pip install qc_baselib
