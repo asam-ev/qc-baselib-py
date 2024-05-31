@@ -1,9 +1,10 @@
 # qc-baselib-py
 
 The Quality Checker Python Base library implements a Python interface for
-creating checker bundles to interact with ASAM Quality Checker framework.
+creating and reporting applications to interact with ASAM Quality Checker
+framework.
 
-The library features the main interfaces needed to implement a checker bundle:
+The library features the main interfaces needed to implement an application:
 
 - Configuration: for reading and writing QC Framework applications configuration
 - Results Report: for reading and writing QC Framework applications reports
