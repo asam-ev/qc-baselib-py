@@ -117,7 +117,7 @@ class Configuration:
                 if bundle.application == application
             )
 
-            if bundle is None or len(bundle.params) == 0:
+            if bundle is None:
                 raise RuntimeError(
                     f"Adding check to non-existent '{application}' checker bundle. Register first the checker bundle."
                 )
@@ -139,7 +139,7 @@ class Configuration:
                 if bundle.application == application
             )
 
-            if bundle is None or len(bundle.params) == 0:
+            if bundle is None:
                 raise RuntimeError(
                     f"Adding param to non-existent '{application}' checker bundle. Register first the checker bundle."
                 )
@@ -161,7 +161,7 @@ class Configuration:
                 if bundle.application == application
             )
 
-            if bundle is None or len(bundle.params) == 0:
+            if bundle is None:
                 raise RuntimeError(
                     f"Adding param to non-existent '{application}' checker bundle. Register first the checker bundle."
                 )
@@ -169,6 +169,10 @@ class Configuration:
             check = next(
                 check for check in bundle.checks if check.checker_id == check_id
             )
+            if check is None:
+                raise RuntimeError(
+                    f"Adding param to non-existent '{application}' checker bundle. Register first the checker bundle."
+                )
             check.params.append(param)
 
     # def set_config_param(self, param_name: str) -> None:
