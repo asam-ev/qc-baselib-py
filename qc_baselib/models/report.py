@@ -1,6 +1,11 @@
-from typing import Annotated, List, Any
-from pydantic import Field, model_validator
-from pydantic_xml import BaseXmlModel, attr, element
+# Copyright 2024, ASAM e.V.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from typing import List, Any
+from pydantic import model_validator
+from pydantic_xml import BaseXmlModel, attr
 
 from .common import ParamType
 
