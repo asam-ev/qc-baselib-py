@@ -114,9 +114,7 @@ class Report:
         )
 
         if self._report_results is None:
-            self._report_results = report.CheckerBundleType(
-                version=DEFAULT_REPORT_VERSION
-            )
+            self._report_results = report.CheckerResults(version=DEFAULT_REPORT_VERSION)
 
         self._report_results.checker_bundles.append(bundle)
 
@@ -160,6 +158,7 @@ class Report:
         row: int,
         column: int,
         file_type: str,
+        description: str,
     ) -> None:
         file_location = report.FileLocationType(
             row=row,
@@ -174,7 +173,9 @@ class Report:
         )
         issue = self._get_issue_by_id_from_checker(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(report.LocationType(file_location=[file_location]))
+        issue.locations.append(
+            report.LocationType(file_location=[file_location], description=description)
+        )
 
     def add_xml_location_to_issue(
         self,
