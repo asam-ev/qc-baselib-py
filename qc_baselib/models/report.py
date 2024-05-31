@@ -19,14 +19,14 @@ class XMLLocationType(BaseXmlModel, tag="XMLLocation"):
 
 
 class RoadLocationType(BaseXmlModel, tag="RoadLocation"):
-    road_id: str = attr(name="roadId")
+    road_id: int = attr(name="roadId")
     t: str = attr(name="t")
     s: str = attr(name="s")
 
 
 class FileLocationType(BaseXmlModel, tag="FileLocation"):
-    column: str = attr(name="column")
-    row: str = attr(name="row")
+    column: int = attr(name="column")
+    row: int = attr(name="row")
     file_type: str = attr(name="fileType")
 
 
@@ -50,9 +50,9 @@ class LocationType(BaseXmlModel, tag="Location"):
 
 class IssueType(BaseXmlModel, tag="Issue"):
     locations: List[LocationType] = []
-    issue_id: str = attr(name="issueId")
+    issue_id: int = attr(name="issueId")
     description: str = attr(name="description")
-    level: str = attr(name="level")
+    level: int = attr(name="level")
 
 
 class CheckerType(BaseXmlModel, tag="Checker"):
