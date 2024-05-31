@@ -12,7 +12,9 @@ with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   <CheckerBundle application="DemoCheckerBundle">
     <Param name="strResultFile" value="DemoCheckerBundle.xqar"/>
-    <Checker checkerId="exampleChecker" maxLevel="1" minLevel="3"/>
+    <Checker checkerId="exampleChecker" maxLevel="1" minLevel="3">
+      <Param name="testCheckerParam" value="Foo"/>
+    </Checker>
   </CheckerBundle>
 
 </Config>

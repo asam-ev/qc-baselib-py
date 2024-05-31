@@ -20,7 +20,7 @@ def test_config_model_load(demo_config: str) -> None:
 
     assert len(parsed_config.params) == 1
     assert len(parsed_config.checker_bundles) == 1
-    assert len(parsed_config.checker_bundles[0].checks) == 1
+    assert len(parsed_config.checker_bundles[0].checkers) == 1
 
 
 def test_report_model_load(demo_report: str) -> None:

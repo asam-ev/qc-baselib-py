@@ -1,5 +1,5 @@
 from typing import Union, Dict
-from models import config, common
+from .models import config, common
 
 
 class Configuration:
@@ -25,13 +25,16 @@ class Configuration:
             )
         with open(xml_output_file_path, "wb") as config_xml_file:
             xml_text = self._configuration.to_xml(
-                pretty_print=True, xml_declaration=True, standalone=False
+                pretty_print=True,
+                xml_declaration=True,
+                standalone=False,
+                encoding="UTF-8",
             )
             config_xml_file.write(xml_text)
 
-    def get_config_param(self, param_name: str) -> str:
+    def get_config_param(self, param_name: str) -> Union[str, int, float, None]:
         if len(self._configuration.params) == 0:
-            return ""
+            return None
 
         param = next(
             (param for param in self._configuration.params if param_name == param.name),
@@ -39,22 +42,27 @@ class Configuration:
         )
 
         if param is None:
-            return ""
+            return None
 
         return param.value
 
-    def get_checker_bundle_param(self, application: str, param_name: str) -> str:
+    def get_checker_bundle_param(
+        self, application: str, param_name: str
+    ) -> Union[str, int, float, None]:
         if len(self._configuration.checker_bundles) == 0:
-            return ""
+            return None
 
         bundle = next(
-            bundle
-            for bundle in self._configuration.checker_bundles
-            if bundle.application == application
+            (
+                bundle
+                for bundle in self._configuration.checker_bundles
+                if bundle.application == application
+            ),
+            None,
         )
 
         if bundle is None or len(bundle.params) == 0:
-            return ""
+            return None
 
         param = next(
             (param for param in bundle.params if param_name == param.name),
@@ -62,22 +70,61 @@ class Configuration:
         )
 
         if param is None:
-            return ""
+            return None
 
         return param.value
 
-    def get_report_module_param(self, application: str, param_name: str) -> str:
+    def get_checker_param(
+        self, application: str, checker_id: str, param_name: str
+    ) -> Union[str, int, float, None]:
+        if len(self._configuration.checker_bundles) == 0:
+            return None
+
+        bundle = next(
+            (
+                bundle
+                for bundle in self._configuration.checker_bundles
+                if bundle.application == application
+            ),
+            None,
+        )
+
+        if bundle is None:
+            return None
+
+        check = next(
+            (check for check in bundle.checkers if check.checker_id == checker_id), None
+        )
+        if check is None or len(check.params) == 0:
+            return None
+
+        param = next(
+            (param for param in check.params if param_name == param.name),
+            None,
+        )
+
+        if param is None:
+            return None
+
+        return param.value
+
+    def get_report_module_param(
+        self, application: str, param_name: str
+    ) -> Union[str, int, float, None]:
         if len(self._configuration.reports) == 0:
-            return ""
+            return None
 
         report = next(
-            report
-            for report in self._configuration.reports
-            if report.application == application
+            (
+                report
+                for report in self._configuration.reports
+                if report.application == application
+            ),
+            None,
         )
 
         if report is None or len(report.params) == 0:
-            return ""
+            return None
 
         param = next(
             (param for param in report.params if param_name == param.name),
@@ -85,25 +132,28 @@ class Configuration:
         )
 
         if param is None:
-            return ""
+            return None
 
         return param.value
 
     def register_checker_bundle(self, application: str) -> None:
         checker_bundle = config.CheckerBundleType.model_construct(
-            {"application": application}
+            **{"application": application}
         )
 
         if self._configuration is None:
-            self._configuration = config.Config(checker_bundles=[checker_bundle])
+            self._configuration = config.Config.model_construct(
+                **{"checker_bundles": [checker_bundle]}
+            )
+
         else:
             self._configuration.checker_bundles.append(checker_bundle)
 
-    def register_check_to_bundle(
-        self, application: str, check_id: str, min_level: str, max_level: str
+    def register_checker_to_bundle(
+        self, application: str, checker_id: str, min_level: str, max_level: str
     ) -> None:
         check = config.CheckerType(
-            check_id=check_id, min_level=min_level, max_level=max_level
+            checker_id=checker_id, min_level=min_level, max_level=max_level
         )
 
         if self._configuration is None:
@@ -112,16 +162,27 @@ class Configuration:
             )
         else:
             bundle = next(
-                bundle
-                for bundle in self._configuration.checker_bundles
-                if bundle.application == application
+                (
+                    bundle
+                    for bundle in self._configuration.checker_bundles
+                    if bundle.application == application
+                ),
+                None,
             )
 
             if bundle is None:
                 raise RuntimeError(
                     f"Adding check to non-existent '{application}' checker bundle. Register first the checker bundle."
                 )
-            bundle.checks.append(check)
+            bundle.checkers.append(check)
+
+    def set_config_param(self, name: str, value: Union[int, float, str]) -> None:
+        param = common.ParamType(name=name, value=value)
+
+        if self._configuration is None:
+            self._configuration = config.Config(params=[param])
+        else:
+            self._configuration.params.append(param)
 
     def set_checker_bundle_param(
         self, application: str, name: str, value: Union[int, float, str]
@@ -134,9 +195,12 @@ class Configuration:
             )
         else:
             bundle = next(
-                bundle
-                for bundle in self._configuration.checker_bundles
-                if bundle.application == application
+                (
+                    bundle
+                    for bundle in self._configuration.checker_bundles
+                    if bundle.application == application
+                ),
+                None,
             )
 
             if bundle is None:
@@ -145,8 +209,12 @@ class Configuration:
                 )
             bundle.params.append(param)
 
-    def set_check_param(
-        self, application: str, check_id: str, name: str, value: Union[str, int, float]
+    def set_checker_param(
+        self,
+        application: str,
+        checker_id: str,
+        name: str,
+        value: Union[str, int, float],
     ) -> None:
         param = common.ParamType(name=name, value=value)
 
@@ -156,9 +224,12 @@ class Configuration:
             )
         else:
             bundle = next(
-                bundle
-                for bundle in self._configuration.checker_bundles
-                if bundle.application == application
+                (
+                    bundle
+                    for bundle in self._configuration.checker_bundles
+                    if bundle.application == application
+                ),
+                None,
             )
 
             if bundle is None:
@@ -167,16 +238,11 @@ class Configuration:
                 )
 
             check = next(
-                check for check in bundle.checks if check.checker_id == check_id
+                (check for check in bundle.checkers if check.checker_id == checker_id),
+                None,
             )
             if check is None:
                 raise RuntimeError(
                     f"Adding param to non-existent '{application}' checker bundle. Register first the checker bundle."
                 )
             check.params.append(param)
-
-    # def set_config_param(self, param_name: str) -> None:
-    #     return
-
-    # def set_report_module_param(self, application: str, param_name: str) -> None:
-    #     return

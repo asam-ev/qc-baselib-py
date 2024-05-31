@@ -23,12 +23,12 @@ class ReportModuleType(BaseXmlModel, tag="ReportModule"):
 
 class CheckerBundleType(BaseXmlModel, tag="CheckerBundle"):
     params: List[ParamType] = []
-    checks: List[CheckerType] = []
+    checkers: List[CheckerType] = []
     application: str = attr(name="application")
 
     @model_validator(mode="after")
     def check_at_least_one_element(self) -> Any:
-        if len(self.params) + len(self.checks) < 1:
+        if len(self.params) + len(self.checkers) < 1:
             raise ValueError(
                 "CheckerBundleType require at least one element of type Param or CheckerType"
             )
