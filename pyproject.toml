@@ -10,6 +10,7 @@ readme = "README.md"
 python = "^3.8"
 pydantic-xml = "^2.11.0"
 pydantic = "^2.7.2"
+lxml = "^5.2.2"
 
 
 [tool.poetry.group.dev.dependencies]

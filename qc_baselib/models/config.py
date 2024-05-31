@@ -12,8 +12,8 @@ from .common import ParamType
 class CheckerType(BaseXmlModel, tag="Checker"):
     params: List[ParamType] = []
     checker_id: str = attr(name="checkerId")
-    max_level: str = attr(name="maxLevel")
-    min_level: str = attr(name="minLevel")
+    max_level: int = attr(name="maxLevel")
+    min_level: int = attr(name="minLevel")
 
 
 class ReportModuleType(BaseXmlModel, tag="ReportModule"):
