@@ -10,13 +10,13 @@ from qc_baselib.models import config, report
 
 @pytest.fixture
 def demo_config() -> str:
-    with open("tests/data/DemoCheckerBundle_config.xml", "rb") as config_xml_file:
+    with open("tests/data/demo_checker_bundle_config.xml", "rb") as config_xml_file:
         return config_xml_file.read()
 
 
 @pytest.fixture
 def demo_report() -> str:
-    with open("tests/data/DemoCheckerBundle.xqar", "rb") as report_xml_file:
+    with open("tests/data/demo_checker_bundle.xqar", "rb") as report_xml_file:
         return report_xml_file.read()
 
 
