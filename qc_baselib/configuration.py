@@ -37,6 +37,23 @@ class Configuration:
             )
             config_xml_file.write(xml_text)
 
+    def _get_checker_bundle(
+        self, application: str
+    ) -> Union[config.CheckerBundleType, None]:
+        if len(self._configuration.checker_bundles) == 0:
+            return None
+
+        bundle = next(
+            (
+                bundle
+                for bundle in self._configuration.checker_bundles
+                if bundle.application == application
+            ),
+            None,
+        )
+
+        return bundle
+
     def get_config_param(self, param_name: str) -> Union[str, int, float, None]:
         if len(self._configuration.params) == 0:
             return None
@@ -54,17 +71,7 @@ class Configuration:
     def get_checker_bundle_param(
         self, application: str, param_name: str
     ) -> Union[str, int, float, None]:
-        if len(self._configuration.checker_bundles) == 0:
-            return None
-
-        bundle = next(
-            (
-                bundle
-                for bundle in self._configuration.checker_bundles
-                if bundle.application == application
-            ),
-            None,
-        )
+        bundle = self._get_checker_bundle(application=application)
 
         if bundle is None or len(bundle.params) == 0:
             return None
@@ -82,17 +89,7 @@ class Configuration:
     def get_checker_param(
         self, application: str, checker_id: str, param_name: str
     ) -> Union[str, int, float, None]:
-        if len(self._configuration.checker_bundles) == 0:
-            return None
-
-        bundle = next(
-            (
-                bundle
-                for bundle in self._configuration.checker_bundles
-                if bundle.application == application
-            ),
-            None,
-        )
+        bundle = self._get_checker_bundle(application=application)
 
         if bundle is None:
             return None
@@ -166,14 +163,7 @@ class Configuration:
                 "Adding check to empty configuration. Initialize the config registering first a checker bundle."
             )
         else:
-            bundle = next(
-                (
-                    bundle
-                    for bundle in self._configuration.checker_bundles
-                    if bundle.application == application
-                ),
-                None,
-            )
+            bundle = self._get_checker_bundle(application=application)
 
             if bundle is None:
                 raise RuntimeError(

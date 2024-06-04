@@ -195,28 +195,4 @@ class Report:
 
         issue.locations.append(report.LocationType(xml_location=[xml_location]))
 
-    def add_road_location_to_issue(
-        self,
-        bundle_name: str,
-        checker_id: str,
-        issue_id: int,
-        road_id: int,
-        t: str,
-        s: str,
-    ) -> None:
-        road_location = report.RoadLocationType(
-            road_id=road_id,
-            t=t,
-            s=s,
-        )
-
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
-
-        checker = self._get_checker_by_checker_id_from_bundle(
-            bundle=bundle, checker_id=checker_id
-        )
-        issue = self._get_issue_by_id_from_checker(checker=checker, issue_id=issue_id)
-
-        issue.locations.append(report.LocationType(road_location=[road_location]))
-
     # TODO: Add get methods for Report
