@@ -156,7 +156,7 @@ DemoCheckerBundle.exampleChecker.testCheckerParam = Foo
 - Create a file `main.py` with:
 
 ```python
-from qc_baselib import Configuration
+from qc_baselib import Report
 
 def main():
     report = Report()
