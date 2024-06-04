@@ -1,3 +1,5 @@
+[![Tests](https://github.com/asam-ev/qc-baselib-py/actions/workflows/tests.yml/badge.svg)](https://github.com/asam-ev/qc-baselib-py/actions?workflow=Tests)
+
 # qc-baselib-py
 
 The Quality Checker Python Base library implements a Python interface for
