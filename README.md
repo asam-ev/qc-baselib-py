@@ -102,6 +102,55 @@ content:
 
 For more information regarding the configuration XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/config_format.xsd)
 
+### Reading checker bundle config from file
+
+- Create a file `main.py` with:
+
+```python
+from qc_baselib import Configuration
+
+CONFIG_FILE_PATH = "tests/data/DemoCheckerBundle_config.xml"
+
+def main():
+    loaded_config = Configuration()
+
+    loaded_config.load_from_file(CONFIG_FILE_PATH)
+
+    xodr_file = loaded_config.get_config_param("XodrFile")
+    demo_bundle_str_result_file = loaded_config.get_checker_bundle_param(
+        "DemoCheckerBundle", "strResultFile"
+    )
+    example_checker_param = loaded_config.get_checker_param(
+        "DemoCheckerBundle", "exampleChecker", "testCheckerParam"
+    )
+
+    print(f"XodrFile = {xodr_file}")
+    print(f"DemoCheckerBundle.strResultFile = {demo_bundle_str_result_file}")
+    print(
+        f"DemoCheckerBundle.exampleChecker.testCheckerParam = {example_checker_param}"
+    )
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+- Execute the script
+
+```bash
+python main.py
+```
+
+The script will load the configuration into the `loaded_config` object and
+will output:
+
+```
+XodrFile = ../stimuli/xodr_examples/three_connected_roads_with_steps.xodr
+DemoCheckerBundle.strResultFile = DemoCheckerBundle.xqar
+DemoCheckerBundle.exampleChecker.testCheckerParam = Foo
+```
+
 ### Writing a report for checker results
 
 - Create a file `main.py` with:

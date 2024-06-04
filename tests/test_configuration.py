@@ -10,7 +10,7 @@ from qc_baselib import Configuration
 
 
 DEMO_CONFIG_PATH = "tests/data/DemoCheckerBundle_config.xml"
-EXAMPLE_OUTPUT_CONFIG_PATH = "tests/data/ConfigTestOuput.xml"
+EXAMPLE_OUTPUT_CONFIG_PATH = "tests/data/ConfigTestOutput.xml"
 TEST_CONFIG_OUTPUT_PATH = "tests/ConfigTestOutput.xml"
 
 
@@ -22,7 +22,10 @@ def loaded_config() -> Configuration:
 
 
 def test_get_config_param(loaded_config: Configuration) -> None:
-    assert loaded_config.get_config_param("XodrFile")
+    assert (
+        loaded_config.get_config_param("XodrFile")
+        == "../stimuli/xodr_examples/three_connected_roads_with_steps.xodr"
+    )
 
 
 def test_get_checker_bundle_param(loaded_config: Configuration) -> None:
