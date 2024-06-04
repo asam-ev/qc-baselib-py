@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<Config>
+  <Param name="testConfigParamStr" value="testValue"/>
+  <Param name="testConfigParamInt" value="1"/>
+  <Param name="testConfigParamFloat" value="2.0"/>
+  <CheckerBundle application="TestCheckerBundle">
+    <Checker checkerId="TestChecker" maxLevel="3" minLevel="1">
+      <Param name="testCbParamStr" value="testValue"/>
+      <Param name="testCbParamInt" value="1"/>
+      <Param name="testCbParamFloat" value="2.0"/>
+    </Checker>
+  </CheckerBundle>
+</Config>
