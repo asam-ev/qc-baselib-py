@@ -15,11 +15,19 @@ The library features the main interfaces needed to implement an application:
 
 **TODO**: Add to Pypi (need to align how it will be done)
 
+From Pypi:
+
 ```bash
 pip install qc_baselib
 ```
 
 Locally for developing using [Poetry](https://python-poetry.org/):
+
+```bash
+poetry install --with dev
+```
+
+Or locally for using the current test version in another applications
 
 ```bash
 poetry install
@@ -236,7 +244,7 @@ For more information regarding the report XSD schema you can check [here](https:
 - Install module on development mode
 
 ```bash
-poetry install
+poetry install --with dev
 ```
 
 - Execute tests
