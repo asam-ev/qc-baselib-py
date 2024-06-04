@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "qc_baselib"
+version = "0.1.0"
+description = "Python base library for ASAM Quality Checker Framework"
+authors = ["Patrick Abrahão <patrick@ivex.ai>"]
+license = "MPL-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic-xml = "^2.11.0"
+pydantic = "^2.7.2"
+lxml = "^5.2.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.1"
+black = "^24.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
