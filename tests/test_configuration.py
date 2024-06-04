@@ -9,9 +9,9 @@ from qc_baselib.models import config, report
 from qc_baselib import Configuration
 
 
-DEMO_CONFIG_PATH = "tests/data/DemoCheckerBundle_config.xml"
-EXAMPLE_OUTPUT_CONFIG_PATH = "tests/data/ConfigTestOutput.xml"
-TEST_CONFIG_OUTPUT_PATH = "tests/ConfigTestOutput.xml"
+DEMO_CONFIG_PATH = "tests/data/demo_checker_bundle_config.xml"
+EXAMPLE_OUTPUT_CONFIG_PATH = "tests/data/config_test_output.xml"
+TEST_CONFIG_OUTPUT_PATH = "tests/config_test_output.xml"
 
 
 @pytest.fixture
@@ -164,9 +164,9 @@ def test_config_write() -> None:
 
     example_xml_text = ""
     output_xml_text = ""
-    with open(EXAMPLE_OUTPUT_CONFIG_PATH, "rb") as config_xml_file:
+    with open(EXAMPLE_OUTPUT_CONFIG_PATH, "r") as config_xml_file:
         example_xml_text = config_xml_file.read()
-    with open(TEST_CONFIG_OUTPUT_PATH, "rb") as config_xml_file:
+    with open(TEST_CONFIG_OUTPUT_PATH, "r") as config_xml_file:
         output_xml_text = config_xml_file.read()
 
     assert output_xml_text == example_xml_text

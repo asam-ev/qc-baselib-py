@@ -3,7 +3,7 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from typing import Union, Dict
+from typing import Union
 from .models import config, common
 
 
@@ -19,9 +19,9 @@ class Configuration:
                 "Configuration already contains data, to re-load it please set the override=True"
             )
 
-        with open(xml_file_path, "r") as config_xml_file:
+        with open(xml_file_path, "rb") as config_xml_file:
             xml_text = config_xml_file.read()
-            self._configuration = config.Config.from_xml(xml_text.encode("utf-8"))
+            self._configuration = config.Config.from_xml(xml_text)
 
     def write_to_file(self, xml_output_file_path: str) -> None:
         if self._configuration is None:

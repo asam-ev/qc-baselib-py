@@ -4,7 +4,7 @@
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from typing import Union
-from .models import report, common
+from .models import report
 
 REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
@@ -22,11 +22,9 @@ class Report:
                 "Report already contains data, to re-load it please set the override=True"
             )
 
-        with open(xml_file_path, "r") as report_xml_file:
+        with open(xml_file_path, "rb") as report_xml_file:
             xml_text = report_xml_file.read()
-            self._report_results = report.CheckerResults.from_xml(
-                xml_text.encode("utf-8")
-            )
+            self._report_results = report.CheckerResults.from_xml(xml_text)
 
     def write_to_file(self, xml_output_file_path: str) -> None:
         if self._report_results is None:

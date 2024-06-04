@@ -4,9 +4,9 @@ from qc_baselib.models import config, report
 from qc_baselib import Report
 
 
-DEMO_REPORT_PATH = "tests/data/DemoCheckerBundle.xqar"
-EXAMPLE_OUTPUT_REPORT_PATH = "tests/data/ReportTestOutput.xqar"
-TEST_REPORT_OUTPUT_PATH = "tests/ReportTestOutput.xqar"
+DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
+EXAMPLE_OUTPUT_REPORT_PATH = "tests/data/report_test_output.xqar"
+TEST_REPORT_OUTPUT_PATH = "tests/report_test_output.xqar"
 
 
 @pytest.fixture
@@ -66,9 +66,9 @@ def test_report_write() -> None:
 
     example_xml_text = ""
     output_xml_text = ""
-    with open(EXAMPLE_OUTPUT_REPORT_PATH, "rb") as report_xml_file:
+    with open(EXAMPLE_OUTPUT_REPORT_PATH, "r") as report_xml_file:
         example_xml_text = report_xml_file.read()
-    with open(TEST_REPORT_OUTPUT_PATH, "rb") as report_xml_file:
+    with open(TEST_REPORT_OUTPUT_PATH, "r") as report_xml_file:
         output_xml_text = report_xml_file.read()
 
     assert output_xml_text == example_xml_text
