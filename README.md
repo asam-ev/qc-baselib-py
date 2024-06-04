@@ -236,7 +236,7 @@ For more information regarding the report XSD schema you can check [here](https:
 - Install module on development mode
 
 ```bash
-poetry install
+poetry install --with dev
 ```
 
 - Execute tests
