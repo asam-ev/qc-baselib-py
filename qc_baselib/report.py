@@ -22,9 +22,11 @@ class Report:
                 "Report already contains data, to re-load it please set the override=True"
             )
 
-        with open(xml_file_path, "rb") as report_xml_file:
+        with open(xml_file_path, "r") as report_xml_file:
             xml_text = report_xml_file.read()
-            self._report_results = report.CheckerResults.from_xml(xml_text)
+            self._report_results = report.CheckerResults.from_xml(
+                xml_text.encode("utf-8")
+            )
 
     def write_to_file(self, xml_output_file_path: str) -> None:
         if self._report_results is None:

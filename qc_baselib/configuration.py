@@ -19,9 +19,9 @@ class Configuration:
                 "Configuration already contains data, to re-load it please set the override=True"
             )
 
-        with open(xml_file_path, "rb") as config_xml_file:
+        with open(xml_file_path, "r") as config_xml_file:
             xml_text = config_xml_file.read()
-            self._configuration = config.Config.from_xml(xml_text)
+            self._configuration = config.Config.from_xml(xml_text.encode("utf-8"))
 
     def write_to_file(self, xml_output_file_path: str) -> None:
         if self._configuration is None:
