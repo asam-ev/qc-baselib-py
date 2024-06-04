@@ -8,6 +8,41 @@ from .models import config, common
 
 
 class Configuration:
+    """
+    Quality framework `Configuration` schema class.
+
+    This class is responsible for manipulating configuration elements in the
+    framework workflow.
+
+    It allow users to read configurations by allowing them
+    to load configuration files in memory and get attributes from it.
+
+    ## Example
+    ```python
+    config = Configuration()
+
+    config.load_from_file(CONFIG_FILE_PATH)
+
+    xodr_file = config.get_config_param("XodrFile")
+    ```
+
+    It allows uses to write configuration by allowing them to populate the
+    instance of it and write to a file.
+
+    ## Example
+    ```python
+    config = Configuration()
+
+    config.set_config_param(name="testConfigParamStr", value="testValue")
+
+    config.write_to_file("testConfig.xml")
+    ```
+
+    For more information regarding the configuration XSD schema you can check
+    [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/config_format.xsd).
+
+    """
+
     def __init__(
         self,
     ):

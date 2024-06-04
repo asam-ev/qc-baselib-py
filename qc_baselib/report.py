@@ -11,6 +11,49 @@ DEFAULT_REPORT_VERSION = "0.0.1"
 
 
 class Report:
+    """
+    Quality framework `Report` schema class.
+
+    This class is responsible for manipulating results reports elements in the
+    framework workflow.
+
+    It allows uses to write reports by allowing them to populate the
+    instance of it and write to a file.
+
+    ## Example
+    ```python
+    report = Report()
+
+    report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    report.write_to_file("testResults.xqar")
+    ```
+
+    TODO: Add implementation for get methods from report
+
+    It allow users to read reports by allowing them
+    to load data files in memory and get attributes from it.
+
+    ## Example
+    ```python
+    report = Report()
+
+    report.load_from_file(REPORT_FILE_PATH)
+
+    version = report.get_version()
+    ```
+
+    For more information regarding the report XSD schema you can check
+    [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_report_format.xsd)
+
+    """
+
     def __init__(
         self,
     ):
