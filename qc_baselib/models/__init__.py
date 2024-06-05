@@ -1,1 +1,1 @@
-from .report import IssueSeverity as IssueSeverity
+from .common import IssueSeverity as IssueSeverity

@@ -2,19 +2,11 @@
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-import enum
-
 from typing import List, Any
 from pydantic import model_validator
 from pydantic_xml import BaseXmlModel, attr
 
-from .common import ParamType
-
-
-class IssueSeverity(enum.IntEnum):
-    ERROR = 1
-    WARNING = 2
-    INFORMATION = 3
+from .common import ParamType, IssueSeverity
 
 
 # Report models

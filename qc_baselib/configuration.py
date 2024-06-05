@@ -4,7 +4,7 @@
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from typing import Union
-from .models import config, common
+from .models import config, common, IssueSeverity
 
 
 class Configuration:
@@ -187,7 +187,11 @@ class Configuration:
             self._configuration.checker_bundles.append(checker_bundle)
 
     def register_checker_to_bundle(
-        self, application: str, checker_id: str, min_level: str, max_level: str
+        self,
+        application: str,
+        checker_id: str,
+        min_level: IssueSeverity,
+        max_level: IssueSeverity,
     ) -> None:
         check = config.CheckerType(
             checker_id=checker_id, min_level=min_level, max_level=max_level
