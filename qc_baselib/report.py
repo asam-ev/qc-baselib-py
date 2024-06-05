@@ -226,6 +226,7 @@ class Report:
         checker_id: str,
         issue_id: int,
         xpath: str,
+        description: str,
     ) -> None:
         xml_location = report.XMLLocationType(xpath=xpath)
 
@@ -236,6 +237,8 @@ class Report:
         )
         issue = self._get_issue_by_id_from_checker(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(report.LocationType(xml_location=[xml_location]))
+        issue.locations.append(
+            report.LocationType(xml_location=[xml_location], description=description)
+        )
 
     # TODO: Add get methods for Report
