@@ -6,6 +6,9 @@
         <Location description="Location for issue">
           <FileLocation column="0" row="1" fileType="odr"/>
         </Location>
+        <Location description="Location for issue">
+          <XMLLocation xpath="/foo/test/path"/>
+        </Location>
       </Issue>
     </Checker>
   </CheckerBundle>
