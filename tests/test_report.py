@@ -60,7 +60,13 @@ def test_report_write() -> None:
         file_type="odr",
         description="Location for issue",
     )
-    # xml and road location are also supported
+    report.add_xml_location_to_issue(
+        bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=0,
+        xpath="/foo/test/path",
+        description="Location for issue",
+    )
 
     report.write_to_file(TEST_REPORT_OUTPUT_PATH)
 
