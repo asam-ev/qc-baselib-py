@@ -1,7 +1,7 @@
 import os
 import pytest
 from qc_baselib.models import config, report
-from qc_baselib import Report
+from qc_baselib import Report, IssueSeverity
 
 
 DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
@@ -48,7 +48,7 @@ def test_report_write() -> None:
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
-        level=3,
+        level=IssueSeverity.INFORMATION,
     )
 
     report.add_file_location_to_issue(
