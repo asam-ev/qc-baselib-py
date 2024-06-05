@@ -11,7 +11,7 @@ from pydantic_xml import BaseXmlModel, attr
 from .common import ParamType
 
 
-class IssueSeverity(enum.Enum):
+class IssueSeverity(enum.IntEnum):
     ERROR = 1
     WARNING = 2
     INFORMATION = 3
@@ -60,7 +60,7 @@ class IssueType(BaseXmlModel, tag="Issue"):
     locations: List[LocationType] = []
     issue_id: int = attr(name="issueId")
     description: str = attr(name="description")
-    level: int = attr(name="level")
+    level: IssueSeverity = attr(name="level")
 
 
 class CheckerType(BaseXmlModel, tag="Checker"):
