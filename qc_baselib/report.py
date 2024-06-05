@@ -179,7 +179,7 @@ class Report:
         checker_id: str,
         issue_id: int,
         description: str,
-        level: int,
+        level: report.IssueSeverity,
     ) -> None:
         issue = report.IssueType(
             issue_id=issue_id, description=description, level=level
