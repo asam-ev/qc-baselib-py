@@ -8,3 +8,4 @@ __version__ = "0.1.0"
 
 from .configuration import Configuration as Configuration
 from .report import Report as Report
+from .models.report import IssueSeverity
