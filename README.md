@@ -166,7 +166,7 @@ DemoCheckerBundle.exampleChecker.testCheckerParam = Foo
 - Create a file `main.py` with:
 
 ```python
-from qc_baselib import Report
+from qc_baselib import Report, IssueSeverity
 
 def main():
     report = Report()
@@ -191,7 +191,7 @@ def main():
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
-        level=3,
+        level=IssueSeverity.INFORMATION,
     )
 
     report.add_file_location_to_issue(
