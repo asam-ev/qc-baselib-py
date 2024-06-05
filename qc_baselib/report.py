@@ -4,7 +4,7 @@
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from typing import Union
-from .models import report
+from .models import report, IssueSeverity
 
 REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
@@ -179,7 +179,7 @@ class Report:
         checker_id: str,
         issue_id: int,
         description: str,
-        level: int,
+        level: IssueSeverity,
     ) -> None:
         issue = report.IssueType(
             issue_id=issue_id, description=description, level=level

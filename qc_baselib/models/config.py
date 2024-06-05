@@ -7,7 +7,7 @@ from typing import List, Any
 from pydantic import model_validator
 from pydantic_xml import BaseXmlModel, attr
 
-from .common import ParamType
+from .common import ParamType, IssueSeverity
 
 # Configuration models
 # Original XSD file:

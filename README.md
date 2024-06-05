@@ -40,7 +40,7 @@ poetry install
 - Create a file `main.py` with:
 
 ```python
-from qc_baselib import Configuration
+from qc_baselib import Configuration, IssueSeverity
 
 def main():
     config = Configuration()
@@ -53,8 +53,8 @@ def main():
     config.register_checker_to_bundle(
         application="TestCheckerBundle",
         checker_id="TestChecker",
-        min_level=1,
-        max_level=3,
+        min_level=IssueSeverity.ERROR,
+        max_level=IssueSeverity.INFORMATION,
     )
 
     # Creating using named arguments
@@ -166,7 +166,7 @@ DemoCheckerBundle.exampleChecker.testCheckerParam = Foo
 - Create a file `main.py` with:
 
 ```python
-from qc_baselib import Report
+from qc_baselib import Report, IssueSeverity
 
 def main():
     report = Report()
@@ -191,7 +191,7 @@ def main():
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
-        level=3,
+        level=IssueSeverity.INFORMATION,
     )
 
     report.add_file_location_to_issue(
