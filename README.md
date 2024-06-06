@@ -3,13 +3,13 @@
 # qc-baselib-py
 
 The Quality Checker Python Base library implements a Python interface for
-creating and reporting applications to interact with ASAM Quality Checker
+creating and resulting applications to interact with ASAM Quality Checker
 framework.
 
 The library features the main interfaces needed to implement an application:
 
 - Configuration: for reading and writing QC Framework applications configuration
-- Results Report: for reading and writing QC Framework applications reports
+- Results report: for reading and writing QC Framework applications results
 
 ## Installation
 
@@ -161,17 +161,17 @@ DemoCheckerBundle.strResultFile = DemoCheckerBundle.xqar
 DemoCheckerBundle.exampleChecker.testCheckerParam = Foo
 ```
 
-### Writing a report for checker results
+### Writing a result for checker results
 
 - Create a file `main.py` with:
 
 ```python
-from qc_baselib import Report, IssueSeverity
+from qc_baselib import Result, IssueSeverity
 
 def main():
-    report = Report()
+    result = Result()
 
-    report.register_checker_bundle(
+    result.register_checker_bundle(
         name="TestBundle",
         build_date="2024-05-31",
         description="Example checker bundle",
@@ -179,14 +179,14 @@ def main():
         summary="Tested example checkers",
     )
 
-    report.register_checker_to_bundle(
+    result.register_checker_to_bundle(
         bundle_name="TestBundle",
         checker_id="TestChecker",
         description="Test checker",
         summary="Executed evaluation",
     )
 
-    report.register_issue_to_checker(
+    result.register_issue_to_checker(
         bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
@@ -194,7 +194,7 @@ def main():
         level=IssueSeverity.INFORMATION,
     )
 
-    report.add_file_location_to_issue(
+    result.add_file_location_to_issue(
         bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
@@ -205,7 +205,7 @@ def main():
     )
     # xml and road location are also supported
 
-    report.write_to_file("testResults.xqar")
+    result.write_to_file("testResults.xqar")
 
 if __name__ == "__main__":
     main()
@@ -237,7 +237,7 @@ content:
 
 ```
 
-For more information regarding the report XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_report_format.xsd)
+For more information regarding the result XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_result_format.xsd)
 
 ## Tests
 
@@ -264,7 +264,7 @@ collected 13 items
 
 tests/test_configuration.py .........                                                                                                                                               [ 69%]
 tests/test_models.py ..                                                                                                                                                             [ 84%]
-tests/test_report.py ..                                                                                                                                                             [100%]
+tests/test_result.py ..                                                                                                                                                             [100%]
 
 =============== 13 passed in 0.20s ===============
 ```
@@ -293,9 +293,9 @@ tests/test_configuration.py::test_set_checker_bundle_param PASSED               
 tests/test_configuration.py::test_set_checker_param PASSED                                                                                                                          [ 61%]
 tests/test_configuration.py::test_config_write PASSED                                                                                                                               [ 69%]
 tests/test_models.py::test_config_model_load PASSED                                                                                                                                 [ 76%]
-tests/test_models.py::test_report_model_load PASSED                                                                                                                                 [ 84%]
-tests/test_report.py::test_load_report_from_file PASSED                                                                                                                             [ 92%]
-tests/test_report.py::test_report_write PASSED                                                                                                                                      [100%]
+tests/test_models.py::test_result_model_load PASSED                                                                                                                                 [ 84%]
+tests/test_result.py::test_load_result_from_file PASSED                                                                                                                             [ 92%]
+tests/test_result.py::test_result_write PASSED                                                                                                                                      [100%]
 
 =============== 13 passed in 0.21s ===============
 ```
