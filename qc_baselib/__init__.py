@@ -7,5 +7,5 @@ __version__ = "0.1.0"
 
 
 from .configuration import Configuration as Configuration
-from .report import Report as Report
+from .results import Result as Result
 from .models import IssueSeverity as IssueSeverity
