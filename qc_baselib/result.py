@@ -81,14 +81,16 @@ class Result:
             )
             report_xml_file.write(xml_text)
 
-    def set_results_version(self, version: str) -> None:
+    def set_result_version(self, version: str) -> None:
         if self._report_results is None:
             self.version = version
             self._report_results = result.CheckerBundleType(version=version)
         else:
             self._report_results.version = version
 
-    def _get_bundle_by_name(self, bundle_name: str) -> result.CheckerBundleType:
+    def _get_checker_bundle_by_name(
+        self, checker_bundle_name: str
+    ) -> result.CheckerBundleType:
         if self._report_results is None:
             raise RuntimeError(
                 "Report not initialized. Initialize the report first by registering the version or a checker bundle."
@@ -98,14 +100,14 @@ class Result:
             (
                 bundle
                 for bundle in self._report_results.checker_bundles
-                if bundle.name == bundle_name
+                if bundle.name == checker_bundle_name
             ),
             None,
         )
 
         if bundle is None:
             raise RuntimeError(
-                f"Bundle not found. The specified {bundle_name} does not exist on the report. Register the bundle first."
+                f"Bundle not found. The specified {checker_bundle_name} does not exist on the report. Register the bundle first."
             )
 
         return bundle
@@ -129,7 +131,7 @@ class Result:
 
         return checker
 
-    def _get_issue_by_id_from_checker(
+    def _get_issue(
         self, checker: result.CheckerType, issue_id: int
     ) -> result.IssueType:
         issue = next(
@@ -160,21 +162,23 @@ class Result:
 
         self._report_results.checker_bundles.append(bundle)
 
-    def register_checker_to_bundle(
-        self, bundle_name: str, checker_id: str, description: str, summary: str
+    def register_checker(
+        self, checker_bundle_name: str, checker_id: str, description: str, summary: str
     ) -> None:
 
         checker = result.CheckerType(
             checker_id=checker_id, description=description, summary=summary
         )
 
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
 
         bundle.checkers.append(checker)
 
-    def register_issue_to_checker(
+    def register_issue(
         self,
-        bundle_name: str,
+        checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
         description: str,
@@ -184,7 +188,9 @@ class Result:
             issue_id=issue_id, description=description, level=level
         )
 
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
 
         checker = self._get_checker_by_checker_id_from_bundle(
             bundle=bundle, checker_id=checker_id
@@ -192,9 +198,9 @@ class Result:
 
         checker.issues.append(issue)
 
-    def add_file_location_to_issue(
+    def add_file_location(
         self,
-        bundle_name: str,
+        checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
         row: int,
@@ -208,20 +214,22 @@ class Result:
             file_type=file_type,
         )
 
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
 
         checker = self._get_checker_by_checker_id_from_bundle(
             bundle=bundle, checker_id=checker_id
         )
-        issue = self._get_issue_by_id_from_checker(checker=checker, issue_id=issue_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
 
         issue.locations.append(
             result.LocationType(file_location=[file_location], description=description)
         )
 
-    def add_xml_location_to_issue(
+    def add_xml_location(
         self,
-        bundle_name: str,
+        checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
         xpath: str,
@@ -229,21 +237,23 @@ class Result:
     ) -> None:
         xml_location = result.XMLLocationType(xpath=xpath)
 
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
 
         checker = self._get_checker_by_checker_id_from_bundle(
             bundle=bundle, checker_id=checker_id
         )
-        issue = self._get_issue_by_id_from_checker(checker=checker, issue_id=issue_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
 
         issue.locations.append(
             result.LocationType(xml_location=[xml_location], description=description)
         )
 
-    def get_results_version(self) -> str:
+    def get_result_version(self) -> str:
         return self._report_results.version
 
-    def get_checker_bundles_names(self) -> List[str]:
+    def get_checker_checker_bundle_names(self) -> List[str]:
         bundles_names = []
 
         for bundle in self._report_results.checker_bundles:
@@ -251,10 +261,12 @@ class Result:
 
         return bundles_names
 
-    def get_checkers_ids_from_bundle(self, bundle_name: str) -> List[str]:
+    def get_checker_ids(self, checker_bundle_name: str) -> List[str]:
         checkers_ids = []
 
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
 
         if bundle is None:
             return checkers_ids
@@ -264,8 +276,10 @@ class Result:
 
         return checkers_ids
 
-    def get_checker_issues_ids(self, bundle_name: str, checker_id: str) -> List[int]:
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+    def get_issue_ids(self, checker_bundle_name: str, checker_id: str) -> List[int]:
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
         checker = self._get_checker_by_checker_id_from_bundle(
             bundle=bundle, checker_id=checker_id
         )
@@ -277,30 +291,36 @@ class Result:
 
         return issues_ids
 
-    def get_bundles_results(self) -> List[result.CheckerBundleType]:
+    def get_checker_bundle_results(self) -> List[result.CheckerBundleType]:
         return self._report_results.checker_bundles
 
-    def get_checker_bundle_result(self, bundle_name: str) -> result.CheckerBundleType:
-        return self._get_bundle_by_name(bundle_name=bundle_name)
+    def get_checker_bundle_result(
+        self, checker_bundle_name: str
+    ) -> result.CheckerBundleType:
+        return self._get_checker_bundle_by_name(checker_bundle_name=checker_bundle_name)
 
-    def get_checker_bundle_checkers_result(
-        self, bundle_name: str
-    ) -> List[result.CheckerType]:
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+    def get_checker_results(self, checker_bundle_name: str) -> List[result.CheckerType]:
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
         return bundle.checkers
 
-    def get_checker_result_from_bundle(
-        self, bundle_name: str, checker_id: str
+    def get_checker_result(
+        self, checker_bundle_name: str, checker_id: str
     ) -> result.CheckerType:
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
         return self._get_checker_by_checker_id_from_bundle(
             bundle=bundle, checker_id=checker_id
         )
 
-    def get_issues_from_checker(
-        self, bundle_name: str, checker_id: str
+    def get_issues(
+        self, checker_bundle_name: str, checker_id: str
     ) -> List[result.IssueType]:
-        bundle = self._get_bundle_by_name(bundle_name=bundle_name)
+        bundle = self._get_checker_bundle_by_name(
+            checker_bundle_name=checker_bundle_name
+        )
         checker = self._get_checker_by_checker_id_from_bundle(
             bundle=bundle, checker_id=checker_id
         )
