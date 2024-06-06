@@ -3,13 +3,14 @@
 # qc-baselib-py
 
 The Quality Checker Python Base library implements a Python interface for
-creating and reporting applications to interact with ASAM Quality Checker
-framework.
+interacting with the configuration files and the results files from the
+ASAM Quality Checker framework. With it, users can create their own
+CheckerBundles or ReportModules.
 
 The library features the main interfaces needed to implement an application:
 
-- Configuration: for reading and writing QC Framework applications configuration
-- Results Report: for reading and writing QC Framework applications reports
+- Configuration: for reading and writing QC Framework applications configuration.
+- Results: for reading and writing QC Framework result files.
 
 ## Installation
 
@@ -35,7 +36,7 @@ poetry install
 
 ## Examples
 
-### Creating checker bundle and adding checkers
+### Creating checker bundle configuration and adding checkers
 
 - Create a file `main.py` with:
 
@@ -49,9 +50,9 @@ def main():
     config.set_config_param(name="testConfigParamInt", value=1)
     config.set_config_param(name="testConfigParamFloat", value=2.0)
 
-    config.register_checker_bundle(application="TestCheckerBundle")
-    config.register_checker_to_bundle(
-        application="TestCheckerBundle",
+    config.register_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         min_level=IssueSeverity.ERROR,
         max_level=IssueSeverity.INFORMATION,
@@ -59,13 +60,13 @@ def main():
 
     # Creating using named arguments
     config.set_checker_param(
-        application="TestCheckerBundle",
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         name="testCbParamStr",
         value="testValue",
     )
     config.set_checker_param(
-        application="TestCheckerBundle",
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         name="testCbParamInt",
         value=1,
@@ -100,7 +101,7 @@ content:
   <Param name="testConfigParamStr" value="testValue"/>
   <Param name="testConfigParamInt" value="1"/>
   <Param name="testConfigParamFloat" value="2.0"/>
-  <CheckerBundle application="TestCheckerBundle">
+  <CheckerBundle checker_bundle_name="TestCheckerBundle">
     <Checker checkerId="TestChecker" maxLevel="3" minLevel="1">
       <Param name="testCbParamStr" value="testValue"/>
       <Param name="testCbParamInt" value="1"/>
@@ -119,7 +120,7 @@ For more information regarding the configuration XSD schema you can check [here]
 ```python
 from qc_baselib import Configuration
 
-CONFIG_FILE_PATH = "tests/data/DemoCheckerBundle_config.xml"
+CONFIG_FILE_PATH = "tests/data/demo_checker_bundle_config.xml"
 
 def main():
     loaded_config = Configuration()
@@ -161,17 +162,17 @@ DemoCheckerBundle.strResultFile = DemoCheckerBundle.xqar
 DemoCheckerBundle.exampleChecker.testCheckerParam = Foo
 ```
 
-### Writing a report for checker results
+### Writing a result for checker results
 
 - Create a file `main.py` with:
 
 ```python
-from qc_baselib import Report, IssueSeverity
+from qc_baselib import Result, IssueSeverity
 
 def main():
-    report = Report()
+    result = Result()
 
-    report.register_checker_bundle(
+    result.register_checker_bundle(
         name="TestBundle",
         build_date="2024-05-31",
         description="Example checker bundle",
@@ -179,23 +180,23 @@ def main():
         summary="Tested example checkers",
     )
 
-    report.register_checker_to_bundle(
-        bundle_name="TestBundle",
+    result.register_checker(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         description="Test checker",
         summary="Executed evaluation",
     )
 
-    report.register_issue_to_checker(
-        bundle_name="TestBundle",
+    result.register_issue(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
     )
 
-    report.add_file_location_to_issue(
-        bundle_name="TestBundle",
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         row=1,
@@ -203,9 +204,9 @@ def main():
         file_type="odr",
         description="Location for issue",
     )
-    # xml and road location are also supported
+    # xml location are also supported
 
-    report.write_to_file("testResults.xqar")
+    result.write_to_file("testResults.xqar")
 
 if __name__ == "__main__":
     main()
@@ -237,7 +238,57 @@ content:
 
 ```
 
-For more information regarding the report XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_report_format.xsd)
+For more information regarding the result XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_result_format.xsd)
+
+### Reading a result from checker bundle execution
+
+- Create a file `main.py` with:
+
+```python
+from qc_baselib import Result
+
+def main():
+    result = Result()
+    result.load_from_file("tests/data/demo_checker_bundle.xqar")
+
+    bundles_names = result.get_checker_bundle_names()
+
+    print(f"Bundle names: {bundles_names}")
+
+    checker_results = result.get_checker_results(
+        checker_bundle_name="DemoCheckerBundle"
+    )
+
+    print(f"Checker id: {checker_results[0].checker_id}")
+
+    issues = result.get_issues(
+        checker_bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
+    )
+
+    print(f"Issue description: {issues[0].description}")
+    print(f"Issue id: {issues[0].issue_id}")
+    print(f"Issue level: {issues[0].level}")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+- Execute the script
+
+```bash
+python main.py
+```
+
+The script will output something similar to:
+
+```
+Bundle names: ['DemoCheckerBundle']
+Checker id: exampleChecker
+Issue description: This is an information from the demo use case
+Issue id: 0
+Issue level: 3
+```
 
 ## Tests
 
@@ -264,7 +315,7 @@ collected 13 items
 
 tests/test_configuration.py .........                                                                                                                                               [ 69%]
 tests/test_models.py ..                                                                                                                                                             [ 84%]
-tests/test_report.py ..                                                                                                                                                             [100%]
+tests/test_result.py ..                                                                                                                                                             [100%]
 
 =============== 13 passed in 0.20s ===============
 ```
@@ -293,9 +344,9 @@ tests/test_configuration.py::test_set_checker_bundle_param PASSED               
 tests/test_configuration.py::test_set_checker_param PASSED                                                                                                                          [ 61%]
 tests/test_configuration.py::test_config_write PASSED                                                                                                                               [ 69%]
 tests/test_models.py::test_config_model_load PASSED                                                                                                                                 [ 76%]
-tests/test_models.py::test_report_model_load PASSED                                                                                                                                 [ 84%]
-tests/test_report.py::test_load_report_from_file PASSED                                                                                                                             [ 92%]
-tests/test_report.py::test_report_write PASSED                                                                                                                                      [100%]
+tests/test_models.py::test_result_model_load PASSED                                                                                                                                 [ 84%]
+tests/test_result.py::test_load_result_from_file PASSED                                                                                                                             [ 92%]
+tests/test_result.py::test_result_write PASSED                                                                                                                                      [100%]
 
 =============== 13 passed in 0.21s ===============
 ```

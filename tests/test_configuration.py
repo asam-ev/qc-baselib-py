@@ -5,7 +5,7 @@
 
 import os
 import pytest
-from qc_baselib.models import config, report
+from qc_baselib.models import config, result
 from qc_baselib import Configuration
 
 
@@ -70,7 +70,7 @@ def test_register_checker_to_bundle() -> None:
     config = Configuration()
 
     config.register_checker_bundle("TestCheckerBundle")
-    config.register_checker_to_bundle(
+    config.register_checker(
         "TestCheckerBundle", "TestChecker", min_level=1, max_level=3
     )
 
@@ -98,7 +98,7 @@ def test_set_checker_param() -> None:
     config = Configuration()
 
     config.register_checker_bundle("TestCheckerBundle")
-    config.register_checker_to_bundle(
+    config.register_checker(
         "TestCheckerBundle", "TestChecker", min_level=1, max_level=3
     )
 
@@ -131,9 +131,9 @@ def test_config_write() -> None:
     config.set_config_param(name="testConfigParamInt", value=1)
     config.set_config_param(name="testConfigParamFloat", value=2.0)
 
-    config.register_checker_bundle(application="TestCheckerBundle")
-    config.register_checker_to_bundle(
-        application="TestCheckerBundle",
+    config.register_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         min_level=1,
         max_level=3,
@@ -141,13 +141,13 @@ def test_config_write() -> None:
 
     # Creating using named arguments
     config.set_checker_param(
-        application="TestCheckerBundle",
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         name="testCbParamStr",
         value="testValue",
     )
     config.set_checker_param(
-        application="TestCheckerBundle",
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         name="testCbParamInt",
         value=1,
