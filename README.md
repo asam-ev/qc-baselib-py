@@ -3,8 +3,9 @@
 # qc-baselib-py
 
 The Quality Checker Python Base library implements a Python interface for
-creating and resulting applications to interact with ASAM Quality Checker
-framework.
+interacting with the configuration files and the results files from the
+ASAM Quality Checker framework. With it, users can create their own
+CheckerBundles or ReportModules.
 
 The library features the main interfaces needed to implement an application:
 
@@ -35,7 +36,7 @@ poetry install
 
 ## Examples
 
-### Creating checker bundle and adding checkers
+### Creating checker bundle configuration and adding checkers
 
 - Create a file `main.py` with:
 
@@ -49,9 +50,9 @@ def main():
     config.set_config_param(name="testConfigParamInt", value=1)
     config.set_config_param(name="testConfigParamFloat", value=2.0)
 
-    config.register_checker_bundle(application="TestCheckerBundle")
-    config.register_checker_to_bundle(
-        application="TestCheckerBundle",
+    config.register_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         min_level=IssueSeverity.ERROR,
         max_level=IssueSeverity.INFORMATION,
@@ -59,13 +60,13 @@ def main():
 
     # Creating using named arguments
     config.set_checker_param(
-        application="TestCheckerBundle",
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         name="testCbParamStr",
         value="testValue",
     )
     config.set_checker_param(
-        application="TestCheckerBundle",
+        checker_bundle_name="TestCheckerBundle",
         checker_id="TestChecker",
         name="testCbParamInt",
         value=1,
@@ -100,7 +101,7 @@ content:
   <Param name="testConfigParamStr" value="testValue"/>
   <Param name="testConfigParamInt" value="1"/>
   <Param name="testConfigParamFloat" value="2.0"/>
-  <CheckerBundle application="TestCheckerBundle">
+  <CheckerBundle checker_bundle_name="TestCheckerBundle">
     <Checker checkerId="TestChecker" maxLevel="3" minLevel="1">
       <Param name="testCbParamStr" value="testValue"/>
       <Param name="testCbParamInt" value="1"/>
@@ -119,7 +120,7 @@ For more information regarding the configuration XSD schema you can check [here]
 ```python
 from qc_baselib import Configuration
 
-CONFIG_FILE_PATH = "tests/data/DemoCheckerBundle_config.xml"
+CONFIG_FILE_PATH = "tests/data/demo_checker_bundle_config.xml"
 
 def main():
     loaded_config = Configuration()
@@ -179,23 +180,23 @@ def main():
         summary="Tested example checkers",
     )
 
-    result.register_checker_to_bundle(
-        bundle_name="TestBundle",
+    result.register_checker(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         description="Test checker",
         summary="Executed evaluation",
     )
 
-    result.register_issue_to_checker(
-        bundle_name="TestBundle",
+    result.register_issue(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
     )
 
-    result.add_file_location_to_issue(
-        bundle_name="TestBundle",
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         row=1,
@@ -203,7 +204,7 @@ def main():
         file_type="odr",
         description="Location for issue",
     )
-    # xml and road location are also supported
+    # xml location are also supported
 
     result.write_to_file("testResults.xqar")
 
@@ -250,18 +251,18 @@ def main():
     result = Result()
     result.load_from_file("tests/data/demo_checker_bundle.xqar")
 
-    bundles_names = result.get_checker_bundles_names()
+    bundles_names = result.get_checker_bundle_names()
 
     print(f"Bundle names: {bundles_names}")
 
-    checker_results = result.get_checker_bundle_checkers_result(
-        bundle_name="DemoCheckerBundle"
+    checker_results = result.get_checker_results(
+        checker_bundle_name="DemoCheckerBundle"
     )
 
     print(f"Checker id: {checker_results[0].checker_id}")
 
-    issues = result.get_issues_from_checker(
-        bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
+    issues = result.get_issues(
+        checker_bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
     )
 
     print(f"Issue description: {issues[0].description}")
