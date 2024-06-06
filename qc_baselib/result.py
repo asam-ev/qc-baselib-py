@@ -253,7 +253,7 @@ class Result:
     def get_result_version(self) -> str:
         return self._report_results.version
 
-    def get_checker_checker_bundle_names(self) -> List[str]:
+    def get_checker_bundle_names(self) -> List[str]:
         bundles_names = []
 
         for bundle in self._report_results.checker_bundles:

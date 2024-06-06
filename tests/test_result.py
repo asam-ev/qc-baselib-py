@@ -33,23 +33,23 @@ def test_result_write() -> None:
         summary="Tested example checkers",
     )
 
-    result.register_checker_to_bundle(
-        bundle_name="TestBundle",
+    result.register_checker(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         description="Test checker",
         summary="Executed evaluation",
     )
 
-    result.register_issue_to_checker(
-        bundle_name="TestBundle",
+    result.register_issue(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
     )
 
-    result.add_file_location_to_issue(
-        bundle_name="TestBundle",
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         row=1,
@@ -57,8 +57,8 @@ def test_result_write() -> None:
         file_type="odr",
         description="Location for issue",
     )
-    result.add_xml_location_to_issue(
-        bundle_name="TestBundle",
+    result.add_xml_location(
+        checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         xpath="/foo/test/path",
@@ -80,34 +80,34 @@ def test_result_write() -> None:
 
 
 def test_result_bundles_load(loaded_result: Result):
-    bundles_names = loaded_result.get_checker_bundles_names()
+    bundles_names = loaded_result.get_checker_bundle_names()
 
     assert len(bundles_names) == 1
 
-    bundles = loaded_result.get_bundles_results()
+    bundles = loaded_result.get_checker_bundle_results()
 
     assert len(bundles) == 1
     assert bundles[0].name == "DemoCheckerBundle"
 
 
 def test_result_checkers_load(loaded_result: Result):
-    bundle_checkers = loaded_result.get_checker_bundle_checkers_result(
-        bundle_name="DemoCheckerBundle"
+    bundle_checkers = loaded_result.get_checker_results(
+        checker_bundle_name="DemoCheckerBundle"
     )
 
     assert len(bundle_checkers) == 1
     assert bundle_checkers[0].checker_id == "exampleChecker"
 
-    example_checker_results = loaded_result.get_checker_result_from_bundle(
-        bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
+    example_checker_results = loaded_result.get_checker_result(
+        checker_bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
     )
 
     assert example_checker_results.checker_id == "exampleChecker"
 
 
 def test_result_issues_load(loaded_result: Result):
-    issues = loaded_result.get_issues_from_checker(
-        bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
+    issues = loaded_result.get_issues(
+        checker_bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
     )
 
     assert issues[0].description == "This is an information from the demo usecase"

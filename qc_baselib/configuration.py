@@ -106,7 +106,7 @@ class Configuration:
     def get_checker_bundle_param(
         self, checker_bundle_name: str, param_name: str
     ) -> Union[str, int, float, None]:
-        bundle = self._get_checker_bundle(application=checker_bundle_name)
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
 
         if bundle is None or len(bundle.params) == 0:
             return None
@@ -124,7 +124,7 @@ class Configuration:
     def get_checker_param(
         self, checker_bundle_name: str, checker_id: str, param_name: str
     ) -> Union[str, int, float, None]:
-        bundle = self._get_checker_bundle(application=checker_bundle_name)
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
 
         if bundle is None:
             return None
@@ -206,7 +206,7 @@ class Configuration:
                 "Adding check to empty configuration. Initialize the config registering first a checker bundle."
             )
         else:
-            bundle = self._get_checker_bundle(application=checker_bundle_name)
+            bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
 
             if bundle is None:
                 raise RuntimeError(
