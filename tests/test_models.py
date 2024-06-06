@@ -5,7 +5,7 @@
 
 # Test if XML model encoding and decoding is done properly based on schema
 import pytest
-from qc_baselib.models import config, report
+from qc_baselib.models import config, result
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def test_config_model_load(demo_config: str) -> None:
 
 
 def test_report_model_load(demo_report: str) -> None:
-    parsed_report = report.CheckerResults.from_xml(demo_report)
+    parsed_report = result.CheckerResults.from_xml(demo_report)
 
     assert parsed_report.version == "1.0.0"
     assert len(parsed_report.checker_bundles) == 1

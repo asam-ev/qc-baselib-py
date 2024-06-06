@@ -5,7 +5,7 @@
 
 import os
 import pytest
-from qc_baselib.models import config, report
+from qc_baselib.models import config, result
 from qc_baselib import Configuration
 
 
