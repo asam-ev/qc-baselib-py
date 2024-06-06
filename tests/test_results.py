@@ -112,4 +112,4 @@ def test_result_issues_load(loaded_result: Result):
 
     assert issues[0].description == "This is an information from the demo usecase"
     assert issues[0].issue_id == 0
-    assert issues[0].level == 3
+    assert issues[0].level == IssueSeverity.INFORMATION

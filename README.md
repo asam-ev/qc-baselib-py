@@ -239,6 +239,56 @@ content:
 
 For more information regarding the result XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_result_format.xsd)
 
+### Reading a result from checker bundle execution
+
+- Create a file `main.py` with:
+
+```python
+from qc_baselib import Result
+
+def main():
+    result = Result()
+    result.load_from_file("tests/data/demo_checker_bundle.xqar")
+
+    bundles_names = result.get_checker_bundles_names()
+
+    print(f"Bundle names: {bundles_names}")
+
+    checker_results = result.get_checker_bundle_checkers_result(
+        bundle_name="DemoCheckerBundle"
+    )
+
+    print(f"Checker id: {checker_results[0].checker_id}")
+
+    issues = result.get_issues_from_checker(
+        bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
+    )
+
+    print(f"Issue description: {issues[0].description}")
+    print(f"Issue id: {issues[0].issue_id}")
+    print(f"Issue level: {issues[0].level}")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+- Execute the script
+
+```bash
+python main.py
+```
+
+The script will output something similar to:
+
+```
+Bundle names: ['DemoCheckerBundle']
+Checker id: exampleChecker
+Issue description: This is an information from the demo use case
+Issue id: 0
+Issue level: 3
+```
+
 ## Tests
 
 - Install module on development mode
