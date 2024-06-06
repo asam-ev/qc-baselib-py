@@ -9,8 +9,8 @@ CheckerBundles or ReportModules.
 
 The library features the main interfaces needed to implement an application:
 
-- Configuration: for reading and writing QC Framework applications configuration
-- Results report: for reading and writing QC Framework applications results
+- Configuration: for reading and writing QC Framework applications configuration.
+- Results: for reading and writing QC Framework result files.
 
 ## Installation
 
