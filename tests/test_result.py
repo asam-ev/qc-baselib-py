@@ -40,10 +40,9 @@ def test_result_write() -> None:
         summary="Executed evaluation",
     )
 
-    result.register_issue(
+    issue_id = result.register_issue(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
-        issue_id=0,
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
     )
@@ -51,7 +50,7 @@ def test_result_write() -> None:
     result.add_file_location(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
-        issue_id=0,
+        issue_id=issue_id,
         row=1,
         column=0,
         file_type="odr",
@@ -60,7 +59,7 @@ def test_result_write() -> None:
     result.add_xml_location(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
-        issue_id=0,
+        issue_id=issue_id,
         xpath="/foo/test/path",
         description="Location for issue",
     )
@@ -113,3 +112,19 @@ def test_result_issues_load(loaded_result: Result):
     assert issues[0].description == "This is an information from the demo usecase"
     assert issues[0].issue_id == 0
     assert issues[0].level == IssueSeverity.INFORMATION
+
+
+def test_result_issues_count(loaded_result: Result):
+    assert loaded_result.get_issue_count() == 1
+    assert (
+        loaded_result.get_checker_bundle_issue_count(
+            checker_bundle_name="DemoCheckerBundle"
+        )
+        == 1
+    )
+    assert (
+        loaded_result.get_checker_issue_count(
+            checker_bundle_name="DemoCheckerBundle", checker_id="exampleChecker"
+        )
+        == 1
+    )
