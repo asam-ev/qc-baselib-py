@@ -128,3 +128,39 @@ def test_result_issues_count(loaded_result: Result):
         )
         == 1
     )
+
+
+def test_result_register_issue_id_generation() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    issue_id_0 = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+    )
+
+    issue_id_1 = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+    )
+
+    assert issue_id_0 != issue_id_1
+    assert issue_id_0 == issue_id_1 - 1
