@@ -10,6 +10,14 @@ REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
 
 
+class IDManager:
+    _id = -1
+
+    def get_next_free_id(self):
+        self._id += 1
+        return self._id
+
+
 class Result:
     """
     Quality framework `Result` schema class.
@@ -56,6 +64,7 @@ class Result:
         self,
     ):
         self._report_results: Union[None, result.CheckerResults] = None
+        self._id_manager = IDManager()
 
     def load_from_file(self, xml_file_path: str, override: bool = False) -> None:
         if self._report_results is not None and not override:
@@ -176,10 +185,15 @@ class Result:
         self,
         checker_bundle_name: str,
         checker_id: str,
-        issue_id: int,
         description: str,
         level: IssueSeverity,
-    ) -> None:
+    ) -> int:
+        """
+        Issue will be registered to checker and the generated issue id will be
+        returned.
+        """
+        issue_id = self._id_manager.get_next_free_id()
+
         issue = result.IssueType(
             issue_id=issue_id, description=description, level=level
         )
@@ -189,6 +203,8 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
 
         checker.issues.append(issue)
+
+        return issue_id
 
     def add_file_location(
         self,
@@ -293,3 +309,29 @@ class Result:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         return checker.issues
+
+    def get_checker_issue_count(self, checker_bundle_name: str, checker_id: str) -> int:
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        return len(checker.issues)
+
+    def get_checker_bundle_issue_count(self, checker_bundle_name: str) -> int:
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        issue_count = 0
+
+        for checker in bundle.checkers:
+            issue_count += len(checker.issues)
+
+        return issue_count
+
+    def get_issue_count(self) -> int:
+        checker_bundle_names = self.get_checker_bundle_names()
+
+        issue_count = 0
+        for checker_bundle_name in checker_bundle_names:
+            issue_count += self.get_checker_bundle_issue_count(
+                checker_bundle_name=checker_bundle_name
+            )
+
+        return issue_count
