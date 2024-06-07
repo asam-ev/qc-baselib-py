@@ -187,7 +187,11 @@ class Result:
         checker_id: str,
         description: str,
         level: IssueSeverity,
-    ) -> None:
+    ) -> int:
+        """
+        Issue will be registered to checker and the generated issue id will be
+        returned.
+        """
         issue_id = self._id_manager.get_next_free_id()
 
         issue = result.IssueType(
