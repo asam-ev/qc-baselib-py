@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <CheckerResults version="0.0.1">
   <CheckerBundle build_date="2024-05-31" description="Example checker bundle" name="TestBundle" version="0.0.1" summary="Tested example checkers">
-    <Checker checkerId="TestChecker" description="Test checker" summary="Executed evaluation">
-      <Issue issueId="0" description="Issue found at odr" level="3">
+    <Checker status="completed" checkerId="TestChecker" description="Test checker" summary="Executed evaluation">
+      <AddressedRule ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
+      <Issue issueId="0" description="Issue found at odr" level="3" ruleUID="test.com:qc:1.0.0:qwerty.qwerty">
         <Location description="Location for issue">
           <FileLocation column="0" row="1" fileType="odr"/>
         </Location>
