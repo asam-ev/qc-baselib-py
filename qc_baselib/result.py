@@ -170,7 +170,11 @@ class Result:
         self._report_results.checker_bundles.append(bundle)
 
     def register_checker(
-        self, checker_bundle_name: str, checker_id: str, description: str, summary: str
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        description: str,
+        summary: str,
     ) -> None:
 
         checker = result.CheckerType(
@@ -181,12 +185,40 @@ class Result:
 
         bundle.checkers.append(checker)
 
+    def register_rule(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        emanating_entity: str,
+        standard: str,
+        definition_setting: str,
+        rule_full_name: str,
+    ) -> str:
+        """
+        Rule will be registered to checker and the generated rule uid will be
+        returned.
+        """
+
+        rule = result.RuleType(
+            emanating_entity=emanating_entity,
+            standard=standard,
+            definition_setting=definition_setting,
+            rule_full_name=rule_full_name,
+        )
+
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        checker.addressed_rule.append(rule)
+
+        return rule.rule_uid
+
     def register_issue(
         self,
         checker_bundle_name: str,
         checker_id: str,
         description: str,
         level: IssueSeverity,
+        rule_uid: str,
     ) -> int:
         """
         Issue will be registered to checker and the generated issue id will be
@@ -195,7 +227,7 @@ class Result:
         issue_id = self._id_manager.get_next_free_id()
 
         issue = result.IssueType(
-            issue_id=issue_id, description=description, level=level
+            issue_id=issue_id, description=description, level=level, rule_uid=rule_uid
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
@@ -203,6 +235,10 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
 
         checker.issues.append(issue)
+
+        # Validation need to be triggered to check if no schema relation was
+        # violated by the new issue addition.
+        result.CheckerType.model_validate(checker)
 
         return issue_id
 
@@ -249,6 +285,13 @@ class Result:
         issue.locations.append(
             result.LocationType(xml_location=[xml_location], description=description)
         )
+
+    def set_checker_status(
+        self, checker_bundle_name: str, checker_id: str, status: result.StatusType
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        checker.status = status
 
     def get_result_version(self) -> str:
         return self._report_results.version
