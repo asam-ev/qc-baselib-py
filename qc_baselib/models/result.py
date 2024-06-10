@@ -58,16 +58,19 @@ class RuleType(BaseXmlModel, tag="AddressedRule"):
         https://github.com/asam-ev/qc-framework/blob/develop/doc/manual/rule_uid_schema.md
     """
 
+    # The current implementation makes Rule members required, so no element can
+    # be left empty for the uid composition.
+
     emanating_entity: str = attr(
         name="emanating_entity", default="", pattern=r"^((\w+(\.\w+)+))$", exclude=True
     )
     standard: str = attr(
-        name="standard", default="", pattern=r"^(([a-z]+))?$", exclude=True
+        name="standard", default="", pattern=r"^(([a-z]+))$", exclude=True
     )
     definition_setting: str = attr(
         name="definition_setting",
         default="",
-        pattern=r"^(([0-9]+(\.[0-9]+)+))?$",
+        pattern=r"^(([0-9]+(\.[0-9]+)+))$",
         exclude=True,
     )
     rule_full_name: str = attr(

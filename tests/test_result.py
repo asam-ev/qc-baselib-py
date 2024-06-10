@@ -1,5 +1,6 @@
 import os
 import pytest
+from pydantic_core import ValidationError
 from qc_baselib.models import config, result
 from qc_baselib import Result, IssueSeverity, StatusType
 
@@ -200,7 +201,7 @@ def test_result_register_issue_id_generation() -> None:
     assert issue_id_0 == issue_id_1 - 1
 
 
-def test_create_issue_load_id() -> None:
+def test_create_rule_id_validation() -> None:
     result = Result()
 
     result.register_checker_bundle(
@@ -218,23 +219,54 @@ def test_create_issue_load_id() -> None:
         summary="Executed evaluation",
     )
 
-    rule_uid = result.register_rule(
-        checker_bundle_name="TestBundle",
-        checker_id="TestChecker",
-        emanating_entity="test.com",
-        standard="qc",
-        definition_setting="1.0.0",
-        rule_full_name="qwerty.qwerty",
-    )
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nemanating_entity\n.* String should match pattern .*",
+    ) as exc_info:
+        rule_uid = result.register_rule(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            emanating_entity="",
+            standard="qc",
+            definition_setting="1.0.0",
+            rule_full_name="qwerty.qwerty",
+        )
 
-    assert rule_uid == "test.com:qc:1.0.0:qwerty.qwerty"
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nstandard\n.* String should match pattern .*",
+    ) as exc_info:
+        rule_uid = result.register_rule(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            emanating_entity="test.com",
+            standard="",
+            definition_setting="1.0.0",
+            rule_full_name="qwerty.qwerty",
+        )
 
-    issue_id = result.register_issue(
-        checker_bundle_name="TestBundle",
-        checker_id="TestChecker",
-        description="Issue found at odr",
-        level=IssueSeverity.INFORMATION,
-        rule_uid=rule_uid,
-    )
+    with pytest.raises(
+        ValidationError,
+        match=r".*\ndefinition_setting\n.* String should match pattern .*",
+    ) as exc_info:
+        rule_uid = result.register_rule(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            emanating_entity="test.com",
+            standard="qc",
+            definition_setting="",
+            rule_full_name="qwerty.qwerty",
+        )
 
-    assert issue_id == 0
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nrule_full_name\n.* String should match pattern .*",
+    ) as exc_info:
+        rule_uid = result.register_rule(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            emanating_entity="test.com",
+            standard="qc",
+            definition_setting="1.0.0",
+            rule_full_name="",
+        )
