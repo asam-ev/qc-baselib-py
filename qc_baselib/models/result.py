@@ -21,9 +21,9 @@ class XMLLocationType(BaseXmlModel, tag="XMLLocation"):
 
 
 class InertialLocationType(BaseXmlModel, tag="InertialLocation"):
-    x: str
-    y: str
-    z: str
+    x: float
+    y: float
+    z: float
 
 
 class FileLocationType(BaseXmlModel, tag="FileLocation"):
