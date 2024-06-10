@@ -152,9 +152,7 @@ class CheckerType(BaseXmlModel, tag="Checker", validate_assignment=True):
     addressed_rule: List[RuleType] = []
     issues: List[IssueType] = []
     metadata: List[MetadataType] = []
-    status: StatusType = attr(
-        name="status", default=StatusType.SKIPPED
-    )  # = "" optional
+    status: StatusType = attr(name="status", default="")
     checker_id: str = attr(name="checkerId")
     description: str = attr(name="description")
     summary: str = attr(name="summary")
