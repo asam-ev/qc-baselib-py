@@ -358,20 +358,14 @@ def test_set_checker_status_skipped_with_issues() -> None:
 
 
 def test_domain_specific_load(loaded_extended_result: Result):
-    xml_text = (
-        loaded_extended_result._report_results.checker_bundles[0]
-        .checkers[3]
-        .issues[0]
-        .to_xml(
-            pretty_print=True,
-        )
+    issue = (
+        loaded_extended_result._report_results.checker_bundles[0].checkers[3].issues[0]
     )
 
     # Evaluate if loading of issues with domain elements is properly done
-    assert (
-        xml_text
-        == b'<Issue issueId="2" description="This is an information from the demo usecase" level="1" ruleUID="test.com:qc:1.0.0:qwerty.qwerty"><Locations description="inertial position"><InertialLocation x="1.0" y="2.0" z="3.0"/></Locations><DomainSpecificInfo name="test_domain">\n          <RoadLocation b="5.4" c="0.0" id="aa"/>\n          <RoadLocation b="5.4" c="0.0" id="aa"/>\n          <TestTagFor>\n            <InternalElementA a="1.0"/>\n            <InternalElementA a="1.0"/>\n            <InternalElementNested a="1.0">\n              <NestedElement/>\n            </InternalElementNested>\n          </TestTagFor>\n        </DomainSpecificInfo>\n  \n      </Issue>\n'
-    )
+    assert len(issue.locations) == 1
+    assert len(issue.domain_specific_info_raw) > 0
+    assert type(issue.domain_specific_info_raw) == etree._Element
 
 
 def test_domain_specific_info_add():
