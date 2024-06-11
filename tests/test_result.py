@@ -1,5 +1,6 @@
 import os
 import pytest
+from lxml import etree
 from pydantic_core import ValidationError
 from qc_baselib.models import config, result
 from qc_baselib import Result, IssueSeverity, StatusType
@@ -15,6 +16,13 @@ TEST_REPORT_OUTPUT_PATH = "tests/result_test_output.xqar"
 def loaded_result() -> Result:
     result = Result()
     result.load_from_file(DEMO_REPORT_PATH)
+    return result
+
+
+@pytest.fixture
+def loaded_extended_result() -> Result:
+    result = Result()
+    result.load_from_file(EXTENDED_DEMO_REPORT_PATH)
     return result
 
 
@@ -347,3 +355,95 @@ def test_set_checker_status_skipped_with_issues() -> None:
             checker_id="TestChecker",
             status=StatusType.SKIPPED,
         )
+
+
+def test_domain_specific_load(loaded_extended_result: Result):
+    xml_text = (
+        loaded_extended_result._report_results.checker_bundles[0]
+        .checkers[3]
+        .issues[0]
+        .to_xml(
+            pretty_print=True,
+        )
+    )
+
+
+def test_domain_specific_info_add():
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid,
+    )
+
+    xml_info = etree.Element("TestCustomTag", attrib={"test": "value"})
+    xml_info.append(etree.Element("NestedCustomTag", attrib={"test": "value"}))
+    xml_info.append(etree.Element("NestedCustomTag", attrib={"test": "value"}))
+
+    result.add_domain_specific_info(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        domain_specific_info_name="TestSpecificInfo",
+        xml_info=xml_info,
+    )
+
+    result.write_to_file(TEST_REPORT_OUTPUT_PATH)
+
+    output_result = Result()
+    output_result.load_from_file(TEST_REPORT_OUTPUT_PATH)
+
+    domain_specific_xml_element = output_result.get_domain_specific_info(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+    )
+
+    domain_specific_xml_text = (
+        etree.tostring(
+            domain_specific_xml_element,
+        )
+        .decode("utf-8")
+        .replace(" ", "")
+        .replace("\n", "")
+    )  # need to take out any whitespace or \n due to tree indentation
+
+    xml_info_text = (
+        etree.tostring(
+            xml_info,
+        )
+        .decode("utf-8")
+        .replace(" ", "")
+        .replace("\n", "")
+    )  # need to take out any whitespace or \n due to tree indentation
+
+    assert domain_specific_xml_text == xml_info_text
+
+    os.remove(TEST_REPORT_OUTPUT_PATH)
