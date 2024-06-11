@@ -22,6 +22,12 @@ From Pypi:
 pip install qc_baselib
 ```
 
+From Github repository:
+
+```bash
+pip install qc_baselib @ git+https://github.com/asam-ev/qc-baselib-py@main
+```
+
 Locally for developing using [Poetry](https://python-poetry.org/):
 
 ```bash
@@ -187,12 +193,22 @@ def main():
         summary="Executed evaluation",
     )
 
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
     result.register_issue(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=0,
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid,
     )
 
     result.add_file_location(
@@ -204,7 +220,6 @@ def main():
         file_type="odr",
         description="Location for issue",
     )
-    # xml location are also supported
 
     result.write_to_file("testResults.xqar")
 
