@@ -202,10 +202,9 @@ def main():
         rule_full_name="qwerty.qwerty",
     )
 
-    result.register_issue(
+    issue_id = result.register_issue(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
-        issue_id=0,
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
         rule_uid=rule_uid,
@@ -214,7 +213,7 @@ def main():
     result.add_file_location(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
-        issue_id=0,
+        issue_id=issue_id,
         row=1,
         column=0,
         file_type="odr",
