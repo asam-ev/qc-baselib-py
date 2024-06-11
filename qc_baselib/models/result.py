@@ -23,9 +23,9 @@ class XMLLocationType(BaseXmlModel, tag="XMLLocation"):
 
 
 class InertialLocationType(BaseXmlModel, tag="InertialLocation"):
-    x: float
-    y: float
-    z: float
+    x: float = attr(name="x")
+    y: float = attr(name="y")
+    z: float = attr(name="z")
 
 
 class FileLocationType(BaseXmlModel, tag="FileLocation"):
@@ -34,16 +34,18 @@ class FileLocationType(BaseXmlModel, tag="FileLocation"):
     file_type: str = attr(name="fileType")
 
 
-class LocationType(BaseXmlModel, tag="Location"):
+class LocationType(BaseXmlModel, tag="Locations"):
     file_location: List[FileLocationType] = []
     xml_location: List[XMLLocationType] = []
-    road_location: List[InertialLocationType] = []
+    inertial_location: List[InertialLocationType] = []
     description: str = attr(name="description")
 
     @model_validator(mode="after")
     def check_at_least_one_element(self) -> Any:
         if (
-            len(self.file_location) + len(self.xml_location) + len(self.road_location)
+            len(self.file_location)
+            + len(self.xml_location)
+            + len(self.inertial_location)
             < 1
         ):
             raise ValueError(

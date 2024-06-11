@@ -367,6 +367,12 @@ def test_domain_specific_load(loaded_extended_result: Result):
         )
     )
 
+    # Evaluate if loading of issues with domain elements is properly done
+    assert (
+        xml_text
+        == b'<Issue issueId="2" description="This is an information from the demo usecase" level="1" ruleUID="test.com:qc:1.0.0:qwerty.qwerty"><Locations description="inertial position"><InertialLocation x="1.0" y="2.0" z="3.0"/></Locations><DomainSpecificInfo name="test_domain">\n          <RoadLocation b="5.4" c="0.0" id="aa"/>\n          <RoadLocation b="5.4" c="0.0" id="aa"/>\n          <TestTagFor>\n            <InternalElementA a="1.0"/>\n            <InternalElementA a="1.0"/>\n            <InternalElementNested a="1.0">\n              <NestedElement/>\n            </InternalElementNested>\n          </TestTagFor>\n        </DomainSpecificInfo>\n  \n      </Issue>\n'
+    )
+
 
 def test_domain_specific_info_add():
     result = Result()
@@ -407,12 +413,30 @@ def test_domain_specific_info_add():
     xml_info.append(etree.Element("NestedCustomTag", attrib={"test": "value"}))
     xml_info.append(etree.Element("NestedCustomTag", attrib={"test": "value"}))
 
+    result.add_xml_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        xpath="/foo/test/path",
+        description="Location for issue",
+    )
+
     result.add_domain_specific_info(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         issue_id=issue_id,
         domain_specific_info_name="TestSpecificInfo",
         xml_info=xml_info,
+    )
+
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=1,
+        column=0,
+        file_type="odr",
+        description="Location for issue",
     )
 
     result.write_to_file(TEST_REPORT_OUTPUT_PATH)

@@ -288,6 +288,29 @@ class Result:
             result.LocationType(xml_location=[xml_location], description=description)
         )
 
+    def add_inertial_location(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        issue_id: int,
+        x: float,
+        y: float,
+        z: float,
+        description: str,
+    ) -> None:
+        inertial_location = result.InertialLocationType(x=x, y=y, z=z)
+
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
+
+        issue.locations.append(
+            result.LocationType(
+                inertial_location=[inertial_location], description=description
+            )
+        )
+
     def add_domain_specific_info(
         self,
         checker_bundle_name: str,

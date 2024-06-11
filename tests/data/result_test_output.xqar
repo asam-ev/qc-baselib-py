@@ -4,12 +4,12 @@
     <Checker status="completed" checkerId="TestChecker" description="Test checker" summary="Executed evaluation">
       <AddressedRule ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
       <Issue issueId="0" description="Issue found at odr" level="3" ruleUID="test.com:qc:1.0.0:qwerty.qwerty">
-        <Location description="Location for issue">
+        <Locations description="Location for issue">
           <FileLocation column="0" row="1" fileType="odr"/>
-        </Location>
-        <Location description="Location for issue">
+        </Locations>
+        <Locations description="Location for issue">
           <XMLLocation xpath="/foo/test/path"/>
-        </Location>
+        </Locations>
       </Issue>
     </Checker>
   </CheckerBundle>
