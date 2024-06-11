@@ -55,7 +55,7 @@ class RuleType(BaseXmlModel, tag="AddressedRule"):
     Type containing the Rule Schema rules and its required checks
 
     More information at:
-        https://github.com/asam-ev/qc-framework/blob/develop/doc/manual/rule_uid_schema.md
+        https://github.com/asam-ev/qc-framework/blob/main/doc/manual/rule_uid_schema.md
     """
 
     # The current implementation makes Rule members required, so no element can
@@ -83,11 +83,15 @@ class RuleType(BaseXmlModel, tag="AddressedRule"):
     rule_uid: str = attr(
         name="ruleUID",
         default="",
-        pattern=r"^((\w+(\.\w+)+)):(([a-z]+))?:(([0-9]+(\.[0-9]+)+))?:((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
+        pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
     )
 
     @model_validator(mode="after")
     def load_fields_into_uid(self) -> Any:
+        """
+        Loads fields into rule uid if all required fields are present.
+        Otherwise it skips initialization.
+        """
         if (
             self.emanating_entity != ""
             and self.standard != ""
@@ -100,9 +104,10 @@ class RuleType(BaseXmlModel, tag="AddressedRule"):
 
     @model_validator(mode="after")
     def load_uid_into_fields(self) -> Any:
-        if self.rule_uid == "":
-            raise ValueError("Empty initialization of AddressedRule with no rule uid")
-
+        """
+        Loads fields from rule uid if no field is present in the model.
+        Otherwise it skips initialization.
+        """
         if (
             self.emanating_entity == ""
             and self.standard == ""
@@ -113,13 +118,32 @@ class RuleType(BaseXmlModel, tag="AddressedRule"):
 
             if len(elements) < 4:
                 raise ValueError(
-                    "Not enough elements to parse Rule UID. This should follow pattern described at https://github.com/asam-ev/qc-framework/blob/develop/doc/manual/rule_uid_schema.md"
+                    "Not enough elements to parse Rule UID. This should follow pattern described at https://github.com/asam-ev/qc-framework/blob/main/doc/manual/rule_uid_schema.md"
                 )
 
             self.emanating_entity = elements[0]
             self.standard = elements[1]
             self.definition_setting = elements[2]
             self.rule_full_name = elements[3]
+
+        return self
+
+    @model_validator(mode="after")
+    def check_any_empty(self) -> Any:
+        """
+        Validates if any field is empty after initialization. No field should
+        be leave empty after a successful initialization happens.
+        """
+        if self.rule_uid == "":
+            raise ValueError("Empty initialization of rule_uid")
+        if self.emanating_entity == "":
+            raise ValueError("Empty initialization of emanating_entity")
+        if self.standard == "":
+            raise ValueError("Empty initialization of standard")
+        if self.definition_setting == "":
+            raise ValueError("Empty initialization of definition_setting")
+        if self.rule_full_name == "":
+            raise ValueError("Empty initialization of rule_full_name")
 
         return self
 
@@ -132,7 +156,7 @@ class IssueType(BaseXmlModel, tag="Issue"):
     rule_uid: str = attr(
         name="ruleUID",
         default="",
-        pattern=r"^((\w+(\.\w+)+)):(([a-z]+))?:(([0-9]+(\.[0-9]+)+))?:((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
+        pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
     )
 
 
@@ -170,6 +194,14 @@ class CheckerType(BaseXmlModel, tag="Checker", validate_assignment=True):
                     raise ValueError(
                         f"Issue Rule UID '{issue.rule_uid}' does not match addressed rules UIDs {list(addressed_rule_uids)}"
                     )
+        return self
+
+    @model_validator(mode="after")
+    def check_skipped_status_containing_issues(self) -> Any:
+        if self.status == StatusType.SKIPPED and len(self.issues) > 0:
+            raise ValueError(
+                f"{self.checker_id}\nCheckers with skipped status cannot contain issues. Issues found: {len(self.issues)}"
+            )
         return self
 
 

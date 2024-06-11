@@ -290,6 +290,8 @@ Issue id: 0
 Issue level: 3
 ```
 
+For more use case examples refer to the library [tests](tests/).
+
 ## Tests
 
 - Install module on development mode

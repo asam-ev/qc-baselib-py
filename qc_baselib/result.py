@@ -292,6 +292,7 @@ class Result:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         checker.status = status
+        result.CheckerType.model_validate(checker)
 
     def get_result_version(self) -> str:
         return self._report_results.version

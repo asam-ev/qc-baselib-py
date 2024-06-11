@@ -301,3 +301,49 @@ def test_create_rule_id_validation() -> None:
             definition_setting="1.0.0",
             rule_full_name="",
         )
+
+
+def test_set_checker_status_skipped_with_issues() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id_0 = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid,
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nCheckers with skipped status cannot contain issues\. .*",
+    ) as exc_info:
+        result.set_checker_status(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            status=StatusType.SKIPPED,
+        )
