@@ -9,3 +9,4 @@ __version__ = "0.1.0"
 from .configuration import Configuration as Configuration
 from .result import Result as Result
 from .models import IssueSeverity as IssueSeverity
+from .models import StatusType as StatusType

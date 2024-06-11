@@ -3,7 +3,8 @@
 
   <CheckerBundle build_date="" description="" name="DemoCheckerBundle" summary="Found 1 issue" version="">
     <Checker checkerId="exampleChecker" description="This is a description" summary="">
-      <Issue description="This is an information from the demo usecase" issueId="0" level="3"/>
+      <AddressedRule ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
+      <Issue description="This is an information from the demo usecase" issueId="0" level="3" ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
     </Checker>
   </CheckerBundle>
 
