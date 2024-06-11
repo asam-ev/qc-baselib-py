@@ -4,6 +4,7 @@
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from typing import Union, List, Dict, Any
+from lxml import etree
 from .models import IssueSeverity, result
 
 REPORT_OUTPUT_FORMAT = "xqar"
@@ -87,6 +88,7 @@ class Result:
                 xml_declaration=True,
                 standalone=False,
                 encoding="UTF-8",
+                skip_empty=True,
             )
             report_xml_file.write(xml_text)
 
@@ -286,6 +288,24 @@ class Result:
             result.LocationType(xml_location=[xml_location], description=description)
         )
 
+    def add_domain_specific_info(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        issue_id: int,
+        domain_specific_info_name: str,
+        xml_info: etree._Element,
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
+        domain_specific_tag = etree.Element(
+            "DomainSpecificInfo", attrib={"name": domain_specific_info_name}
+        )
+        domain_specific_tag.append(xml_info)
+        issue.domain_specific_info_raw = domain_specific_tag
+
     def set_checker_status(
         self, checker_bundle_name: str, checker_id: str, status: result.StatusType
     ) -> None:
@@ -379,3 +399,15 @@ class Result:
             )
 
         return issue_count
+
+    def get_domain_specific_info(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        issue_id: int,
+    ) -> etree._Element:
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
+
+        return issue.domain_specific_info_raw[0]
