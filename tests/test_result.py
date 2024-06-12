@@ -373,8 +373,9 @@ def test_domain_specific_load(loaded_extended_result: Result):
 
     # Evaluate if loading of issues with domain elements is properly done
     assert len(issue.locations) == 1
-    assert len(issue.domain_specific_info_raw) > 0
-    assert type(issue.domain_specific_info_raw) == etree._Element
+    assert len(issue.domain_specific_info) == 2
+    assert type(issue.domain_specific_info) == list
+    assert type(issue.domain_specific_info[0]) == etree._Element
 
 
 def test_domain_specific_info_add():
@@ -413,8 +414,8 @@ def test_domain_specific_info_add():
     )
 
     xml_info = etree.Element("TestCustomTag", attrib={"test": "value"})
-    xml_info.append(etree.Element("NestedCustomTag", attrib={"test": "value"}))
-    xml_info.append(etree.Element("NestedCustomTag", attrib={"test": "value"}))
+    xml_info.append(etree.Element("NestedCustomTag1", attrib={"test": "value1"}))
+    xml_info.append(etree.Element("NestedCustomTag2", attrib={"test": "value2"}))
 
     result.add_xml_location(
         checker_bundle_name="TestBundle",
@@ -429,7 +430,7 @@ def test_domain_specific_info_add():
         checker_id="TestChecker",
         issue_id=issue_id,
         domain_specific_info_name="TestSpecificInfo",
-        xml_info=xml_info,
+        xml_info=[xml_info],
     )
 
     result.add_file_location(
@@ -440,6 +441,14 @@ def test_domain_specific_info_add():
         column=0,
         file_type="odr",
         description="Location for issue",
+    )
+
+    result.add_domain_specific_info(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        domain_specific_info_name="DebugInfo",
+        xml_info=[xml_info, xml_info],
     )
 
     result.write_to_file(TEST_REPORT_OUTPUT_PATH)
@@ -453,9 +462,20 @@ def test_domain_specific_info_add():
         issue_id=issue_id,
     )
 
+    assert len(domain_specific_xml_element) == 2
+
+    name = domain_specific_xml_element[0].name
+    content = domain_specific_xml_element[0].content
+
+    assert len(content) == 1
+    assert type(name) == str
+    assert name == "TestSpecificInfo"
+
+    children_content = content[0]
+
     domain_specific_xml_text = (
         etree.tostring(
-            domain_specific_xml_element,
+            children_content,
         )
         .decode("utf-8")
         .replace(" ", "")
