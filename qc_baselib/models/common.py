@@ -16,7 +16,7 @@ class IssueSeverity(enum.IntEnum):
 
 
 # Common types for both schemas
-class ParamType(BaseXmlModel, tag="Param"):
+class ParamType(BaseXmlModel):
     name: Annotated[str, Field(min_length=1)] | None = attr(name="name")
     value: Annotated[Union[str, int, float], Field()] | None = attr(
         name="value", default_factory=str
