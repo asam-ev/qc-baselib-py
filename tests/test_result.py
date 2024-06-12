@@ -89,6 +89,15 @@ def test_result_write() -> None:
         xpath="/foo/test/path",
         description="Location for issue",
     )
+    result.add_inertial_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        x=1.0,
+        y=2.0,
+        z=3.0,
+        description="Location for issue",
+    )
 
     result.set_checker_status(
         checker_bundle_name="TestBundle",

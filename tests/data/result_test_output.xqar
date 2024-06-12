@@ -10,6 +10,9 @@
         <Locations description="Location for issue">
           <XMLLocation xpath="/foo/test/path"/>
         </Locations>
+        <Locations description="Location for issue">
+          <InertialLocation x="1.0" y="2.0" z="3.0"/>
+        </Locations>
       </Issue>
     </Checker>
   </CheckerBundle>
