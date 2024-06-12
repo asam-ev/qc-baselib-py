@@ -327,6 +327,11 @@ class Result:
         domain_specific_info_name: str,
         xml_info: List[etree._Element],
     ) -> None:
+        """
+        The XML information list provided will be wrapped in the DomainSpecificInfo
+        tag and the information will be appended to the issue list of domain
+        specific information.
+        """
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
@@ -441,6 +446,13 @@ class Result:
         checker_id: str,
         issue_id: int,
     ) -> List[DomainSpecificInfoContent]:
+        """
+        The method returns a list containing all relative DomainSpecificContent
+        dataclasses to the XML tags.
+
+        The XML information in each DomainSpecificInformation tag is unwrapped
+        and it is returned in a DomainSpecificContent dataclass.
+        """
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)

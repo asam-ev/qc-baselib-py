@@ -159,8 +159,6 @@ class DomainSpecificInfoType(
     name: str = attr(name="name")
 
 
-# Add documentation about the implementation and link issue
-# Add docs on public interface as well
 class IssueType(
     BaseXmlModel,
     tag="Issue",
