@@ -5,7 +5,7 @@
 
 from typing import List, Any
 from pydantic import model_validator
-from pydantic_xml import BaseXmlModel, attr
+from pydantic_xml import BaseXmlModel, attr, element
 
 from .common import ParamType, IssueSeverity
 
@@ -14,21 +14,21 @@ from .common import ParamType, IssueSeverity
 # > https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/config_format.xsd
 
 
-class CheckerType(BaseXmlModel, tag="Checker"):
-    params: List[ParamType] = []
+class CheckerType(BaseXmlModel):
+    params: List[ParamType] = element(tag="Param", default=[])
     checker_id: str = attr(name="checkerId")
     max_level: int = attr(name="maxLevel")
     min_level: int = attr(name="minLevel")
 
 
-class ReportModuleType(BaseXmlModel, tag="ReportModule"):
-    params: List[ParamType] = []
+class ReportModuleType(BaseXmlModel):
+    params: List[ParamType] = element(tag="Param", default=[])
     application: str = attr(name="application")
 
 
-class CheckerBundleType(BaseXmlModel, tag="CheckerBundle"):
-    params: List[ParamType] = []
-    checkers: List[CheckerType] = []
+class CheckerBundleType(BaseXmlModel):
+    params: List[ParamType] = element(tag="Param", default=[])
+    checkers: List[CheckerType] = element(tag="Checker", default=[])
     application: str = attr(name="application")
 
     @model_validator(mode="after")
@@ -41,9 +41,9 @@ class CheckerBundleType(BaseXmlModel, tag="CheckerBundle"):
 
 
 class Config(BaseXmlModel, tag="Config"):
-    params: List[ParamType] = []
-    reports: List[ReportModuleType] = []
-    checker_bundles: List[CheckerBundleType] = []
+    params: List[ParamType] = element(tag="Param", default=[])
+    reports: List[ReportModuleType] = element(tag="ReportModule", default=[])
+    checker_bundles: List[CheckerBundleType] = element(tag="CheckerBundle", default=[])
 
     @model_validator(mode="after")
     def check_at_least_one_element(self) -> Any:
