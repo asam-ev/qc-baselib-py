@@ -4,9 +4,11 @@
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import enum
 
-from typing import List, Any, Set, Dict
+
+from typing import List, Any, Set
 from pydantic import model_validator
-from pydantic_xml import BaseXmlModel, attr, element
+from pydantic_xml import BaseXmlModel, attr, element, computed_element
+from lxml import etree
 
 from .common import ParamType, IssueSeverity
 
@@ -21,9 +23,9 @@ class XMLLocationType(BaseXmlModel, tag="XMLLocation"):
 
 
 class InertialLocationType(BaseXmlModel, tag="InertialLocation"):
-    x: float
-    y: float
-    z: float
+    x: float = attr(name="x")
+    y: float = attr(name="y")
+    z: float = attr(name="z")
 
 
 class FileLocationType(BaseXmlModel, tag="FileLocation"):
@@ -32,16 +34,18 @@ class FileLocationType(BaseXmlModel, tag="FileLocation"):
     file_type: str = attr(name="fileType")
 
 
-class LocationType(BaseXmlModel, tag="Location"):
+class LocationType(BaseXmlModel, tag="Locations"):
     file_location: List[FileLocationType] = []
     xml_location: List[XMLLocationType] = []
-    road_location: List[InertialLocationType] = []
+    inertial_location: List[InertialLocationType] = []
     description: str = attr(name="description")
 
     @model_validator(mode="after")
     def check_at_least_one_element(self) -> Any:
         if (
-            len(self.file_location) + len(self.xml_location) + len(self.road_location)
+            len(self.file_location)
+            + len(self.xml_location)
+            + len(self.inertial_location)
             < 1
         ):
             raise ValueError(
@@ -148,7 +152,18 @@ class RuleType(BaseXmlModel, tag="AddressedRule"):
         return self
 
 
-class IssueType(BaseXmlModel, tag="Issue"):
+class DomainSpecificInfoType(
+    BaseXmlModel,
+    tag="DomainSpecificInfo",
+):
+    name: str = attr(name="name")
+
+
+class IssueType(
+    BaseXmlModel,
+    tag="Issue",
+    arbitrary_types_allowed=True,
+):
     locations: List[LocationType] = []
     issue_id: int = attr(name="issueId")
     description: str = attr(name="description")
@@ -157,6 +172,13 @@ class IssueType(BaseXmlModel, tag="Issue"):
         name="ruleUID",
         default="",
         pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
+    )
+    # Raw is defined here to enable parsing of "any" XML tag inside the domain
+    # specific information. It is linked to the DomainSpecificInfoType model
+    # to enforce the attributes.
+    # Linked Issue: https://github.com/dapper91/pydantic-xml/issues/100
+    domain_specific_info: List[etree._Element] = element(
+        tag="DomainSpecificInfo", default=[], excluded=True
     )
 
 
@@ -176,7 +198,7 @@ class CheckerType(BaseXmlModel, tag="Checker", validate_assignment=True):
     addressed_rule: List[RuleType] = []
     issues: List[IssueType] = []
     metadata: List[MetadataType] = []
-    status: StatusType = attr(name="status", default="")
+    status: StatusType = attr(name="status", default=None)
     checker_id: str = attr(name="checkerId")
     description: str = attr(name="description")
     summary: str = attr(name="summary")

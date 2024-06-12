@@ -21,7 +21,25 @@
     </Checker>
     <Checker checkerId="exampleIssueRuleChecker" description="This is a description of checker with issue and the involved ruleUID" status="completed" summary="">
       <AddressedRule ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
-      <Issue description="This is an information from the demo usecase" issueId="2" level="1" ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
+      <Issue description="This is an information from the demo usecase" issueId="2" level="1" ruleUID="test.com:qc:1.0.0:qwerty.qwerty">
+        <Locations description="inertial position">
+          <InertialLocation x="1.000000" y="2.000000" z="3.000000"/>
+        </Locations>
+        <DomainSpecificInfo name="test_domain_1">
+          <RoadLocation b="5.4" c="0.0" id="aa" />
+          <RoadLocation b="5.4" c="0.0" id="aa" />
+          <TestTagFor>
+            <InternalElementA a="1.0"/>
+            <InternalElementA a="1.0"/>
+            <InternalElementNested a="1.0">
+              <NestedElement/>
+            </InternalElementNested>
+          </TestTagFor>
+        </DomainSpecificInfo>
+        <DomainSpecificInfo name="test_domain_2">
+          <RoadLocation b="5.4" c="0.0" id="aa" />
+        </DomainSpecificInfo>
+      </Issue>
     </Checker>
     <Checker checkerId="exampleSkippedChecker" description="This is a description of checker with skipped status" status="skipped" summary="Skipped execution"/>
   </CheckerBundle>
