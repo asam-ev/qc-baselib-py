@@ -3,12 +3,20 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from copy import deepcopy
+from dataclasses import dataclass
 from typing import Union, List, Dict, Any
 from lxml import etree
 from .models import IssueSeverity, result
 
 REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
+
+
+@dataclass
+class DomainSpecificInfoContent:
+    name: str
+    content: List[etree._Element]
 
 
 class IDManager:
@@ -317,17 +325,21 @@ class Result:
         checker_id: str,
         issue_id: int,
         domain_specific_info_name: str,
-        xml_info: etree._Element,
+        xml_info: List[etree._Element],
     ) -> None:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
-
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
+
         domain_specific_tag = etree.Element(
             "DomainSpecificInfo", attrib={"name": domain_specific_info_name}
         )
-        domain_specific_tag.append(xml_info)
-        issue.domain_specific_info_raw = domain_specific_tag
+
+        for xml_info_element in xml_info:
+            xml_info_to_append = deepcopy(xml_info_element)
+            domain_specific_tag.append(xml_info_to_append)
+
+        issue.domain_specific_info.append(domain_specific_tag)
 
     def set_checker_status(
         self, checker_bundle_name: str, checker_id: str, status: result.StatusType
@@ -428,9 +440,19 @@ class Result:
         checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
-    ) -> etree._Element:
+    ) -> List[DomainSpecificInfoContent]:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
-        return issue.domain_specific_info_raw[0]
+        domain_specific_list = []
+
+        for domain_specific_info in issue.domain_specific_info:
+            attrib = domain_specific_info.attrib
+            info_dict = DomainSpecificInfoContent(
+                name=attrib["name"], content=domain_specific_info.getchildren()
+            )
+
+            domain_specific_list.append(info_dict)
+
+        return domain_specific_list

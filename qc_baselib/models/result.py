@@ -159,6 +159,8 @@ class DomainSpecificInfoType(
     name: str = attr(name="name")
 
 
+# Add documentation about the implementation and link issue
+# Add docs on public interface as well
 class IssueType(
     BaseXmlModel,
     tag="Issue",
@@ -173,8 +175,12 @@ class IssueType(
         default="",
         pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
     )
-    domain_specific_info_raw: etree._Element = element(
-        tag="DomainSpecificInfo", default=None, excluded=True
+    # Raw is defined here to enable parsing of "any" XML tag inside the domain
+    # specific information. It is linked to the DomainSpecificInfoType model
+    # to enforce the attributes.
+    # Linked Issue: https://github.com/dapper91/pydantic-xml/issues/100
+    domain_specific_info: List[etree._Element] = element(
+        tag="DomainSpecificInfo", default=[], excluded=True
     )
 
 

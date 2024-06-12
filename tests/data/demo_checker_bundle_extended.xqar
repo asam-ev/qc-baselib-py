@@ -25,7 +25,7 @@
         <Locations description="inertial position">
           <InertialLocation x="1.000000" y="2.000000" z="3.000000"/>
         </Locations>
-        <DomainSpecificInfo name="test_domain">
+        <DomainSpecificInfo name="test_domain_1">
           <RoadLocation b="5.4" c="0.0" id="aa" />
           <RoadLocation b="5.4" c="0.0" id="aa" />
           <TestTagFor>
@@ -35,6 +35,9 @@
               <NestedElement/>
             </InternalElementNested>
           </TestTagFor>
+        </DomainSpecificInfo>
+        <DomainSpecificInfo name="test_domain_2">
+          <RoadLocation b="5.4" c="0.0" id="aa" />
         </DomainSpecificInfo>
       </Issue>
     </Checker>
