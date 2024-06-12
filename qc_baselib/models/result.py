@@ -18,26 +18,28 @@ from .common import ParamType, IssueSeverity
 # > https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_report_format.xsd
 
 
-class XMLLocationType(BaseXmlModel, tag="XMLLocation"):
+class XMLLocationType(BaseXmlModel):
     xpath: str = attr(name="xpath")
 
 
-class InertialLocationType(BaseXmlModel, tag="InertialLocation"):
+class InertialLocationType(BaseXmlModel):
     x: float = attr(name="x")
     y: float = attr(name="y")
     z: float = attr(name="z")
 
 
-class FileLocationType(BaseXmlModel, tag="FileLocation"):
+class FileLocationType(BaseXmlModel):
     column: int = attr(name="column")
     row: int = attr(name="row")
     file_type: str = attr(name="fileType")
 
 
-class LocationType(BaseXmlModel, tag="Locations"):
-    file_location: List[FileLocationType] = []
-    xml_location: List[XMLLocationType] = []
-    inertial_location: List[InertialLocationType] = []
+class LocationType(BaseXmlModel):
+    file_location: List[FileLocationType] = element(tag="FileLocation", default=[])
+    xml_location: List[XMLLocationType] = element(tag="XMLLocation", default=[])
+    inertial_location: List[InertialLocationType] = element(
+        tag="InertialLocation", default=[]
+    )
     description: str = attr(name="description")
 
     @model_validator(mode="after")
@@ -54,7 +56,7 @@ class LocationType(BaseXmlModel, tag="Locations"):
         return self
 
 
-class RuleType(BaseXmlModel, tag="AddressedRule"):
+class RuleType(BaseXmlModel):
     """
     Type containing the Rule Schema rules and its required checks
 
@@ -161,10 +163,9 @@ class DomainSpecificInfoType(
 
 class IssueType(
     BaseXmlModel,
-    tag="Issue",
     arbitrary_types_allowed=True,
 ):
-    locations: List[LocationType] = []
+    locations: List[LocationType] = element(tag="Locations", default=[])
     issue_id: int = attr(name="issueId")
     description: str = attr(name="description")
     level: IssueSeverity = attr(name="level")
@@ -182,7 +183,7 @@ class IssueType(
     )
 
 
-class MetadataType(BaseXmlModel, tag="Metadata"):
+class MetadataType(BaseXmlModel):
     key: str = attr(name="key")
     value: str = attr(name="value")
     description: str = attr(name="description")
@@ -194,10 +195,10 @@ class StatusType(str, enum.Enum):
     SKIPPED = "skipped"
 
 
-class CheckerType(BaseXmlModel, tag="Checker", validate_assignment=True):
-    addressed_rule: List[RuleType] = []
-    issues: List[IssueType] = []
-    metadata: List[MetadataType] = []
+class CheckerType(BaseXmlModel, validate_assignment=True):
+    addressed_rule: List[RuleType] = element(tag="AddressedRule", default=[])
+    issues: List[IssueType] = element(tag="Issue", default=[])
+    metadata: List[MetadataType] = element(tag="Metadata", default=[])
     status: StatusType = attr(name="status", default=None)
     checker_id: str = attr(name="checkerId")
     description: str = attr(name="description")
@@ -227,9 +228,9 @@ class CheckerType(BaseXmlModel, tag="Checker", validate_assignment=True):
         return self
 
 
-class CheckerBundleType(BaseXmlModel, tag="CheckerBundle"):
-    params: List[ParamType] = []
-    checkers: List[CheckerType] = []
+class CheckerBundleType(BaseXmlModel):
+    params: List[ParamType] = element(tag="Param", default=[])
+    checkers: List[CheckerType] = element(tag="Checker", default=[])
     build_date: str = attr(name="build_date")
     description: str = attr(name="description")
     name: str = attr(name="name")
@@ -238,5 +239,5 @@ class CheckerBundleType(BaseXmlModel, tag="CheckerBundle"):
 
 
 class CheckerResults(BaseXmlModel, tag="CheckerResults"):
-    checker_bundles: List[CheckerBundleType] = []
+    checker_bundles: List[CheckerBundleType] = element(tag="CheckerBundle", default=[])
     version: str = attr(name="version")
