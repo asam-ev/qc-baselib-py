@@ -494,3 +494,83 @@ def test_domain_specific_info_add():
     assert domain_specific_xml_text == xml_info_text
 
     os.remove(TEST_REPORT_OUTPUT_PATH)
+
+
+def test_get_issue_by_rule_uid() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid_1 = result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id = result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_1,
+    )
+
+    issue_id = result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr secondary",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_1,
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker2",
+        description="Test checker 2",
+        summary="Executed evaluation 2",
+    )
+
+    rule_uid_2 = result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker2",
+        emanating_entity="new.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id = result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker2",
+        description=f"Issue found at odr on rule uid {rule_uid_2}",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_2,
+    )
+
+    rule_uid_1_issues = result_report.get_issues_by_rule_id(rule_uid_1)
+    rule_uid_2_issues = result_report.get_issues_by_rule_id(rule_uid_2)
+
+    assert len(rule_uid_1_issues) == 2
+    assert len(rule_uid_2_issues) == 1
+    assert type(rule_uid_2_issues[0]) == result.IssueType
+    assert (
+        rule_uid_2_issues[0].description
+        == f"Issue found at odr on rule uid {rule_uid_2}"
+    )
+    assert rule_uid_2_issues[0].level == IssueSeverity.INFORMATION
