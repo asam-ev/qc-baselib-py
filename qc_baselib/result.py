@@ -468,3 +468,14 @@ class Result:
             domain_specific_list.append(info_dict)
 
         return domain_specific_list
+
+    def get_issues_by_rule_id(self, rule_uid: str) -> List[result.IssueType]:
+        rule_issues: List[result.IssueType] = []
+
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                for issue in checker.issues:
+                    if issue.rule_uid == rule_uid:
+                        rule_issues.append(issue)
+
+        return rule_issues
