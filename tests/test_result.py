@@ -563,8 +563,8 @@ def test_get_issue_by_rule_uid() -> None:
         rule_uid=rule_uid_2,
     )
 
-    rule_uid_1_issues = result_report.get_issues_by_rule_id(rule_uid_1)
-    rule_uid_2_issues = result_report.get_issues_by_rule_id(rule_uid_2)
+    rule_uid_1_issues = result_report.get_issues_by_rule_uid(rule_uid_1)
+    rule_uid_2_issues = result_report.get_issues_by_rule_uid(rule_uid_2)
 
     assert len(rule_uid_1_issues) == 2
     assert len(rule_uid_2_issues) == 1
