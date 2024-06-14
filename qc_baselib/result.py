@@ -469,7 +469,7 @@ class Result:
 
         return domain_specific_list
 
-    def get_issues_by_rule_id(self, rule_uid: str) -> List[result.IssueType]:
+    def get_issues_by_rule_uid(self, rule_uid: str) -> List[result.IssueType]:
         rule_issues: List[result.IssueType] = []
 
         for bundle in self._report_results.checker_bundles:
