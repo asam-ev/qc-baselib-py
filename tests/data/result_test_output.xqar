@@ -10,6 +10,10 @@
         <Locations description="Location for issue">
           <XMLLocation xpath="/foo/test/path"/>
         </Locations>
+        <Locations description="Location for issue with list">
+          <XMLLocation xpath="/foo/test/path"/>
+          <XMLLocation xpath="/bar/test/path"/>
+        </Locations>
         <Locations description="Location for issue">
           <InertialLocation x="1.0" y="2.0" z="3.0"/>
         </Locations>
