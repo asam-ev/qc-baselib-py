@@ -259,13 +259,11 @@ class Result:
         issue_id: int,
         row: int,
         column: int,
-        file_type: str,
         description: str,
     ) -> None:
         file_location = result.FileLocationType(
             row=row,
             column=column,
-            file_type=file_type,
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
