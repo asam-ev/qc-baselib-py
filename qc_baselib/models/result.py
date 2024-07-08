@@ -31,7 +31,6 @@ class InertialLocationType(BaseXmlModel):
 class FileLocationType(BaseXmlModel):
     column: int = attr(name="column")
     row: int = attr(name="row")
-    file_type: str = attr(name="fileType")
 
 
 class LocationType(BaseXmlModel):

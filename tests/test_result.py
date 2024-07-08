@@ -79,7 +79,6 @@ def test_result_write() -> None:
         issue_id=issue_id,
         row=1,
         column=0,
-        file_type="odr",
         description="Location for issue",
     )
     result.add_xml_location(
@@ -439,7 +438,6 @@ def test_domain_specific_info_add():
         issue_id=issue_id,
         row=1,
         column=0,
-        file_type="odr",
         description="Location for issue",
     )
 
