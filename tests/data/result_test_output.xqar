@@ -5,10 +5,14 @@
       <AddressedRule ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
       <Issue issueId="0" description="Issue found at odr" level="3" ruleUID="test.com:qc:1.0.0:qwerty.qwerty">
         <Locations description="Location for issue">
-          <FileLocation column="0" row="1" fileType="odr"/>
+          <FileLocation column="0" row="1"/>
         </Locations>
         <Locations description="Location for issue">
           <XMLLocation xpath="/foo/test/path"/>
+        </Locations>
+        <Locations description="Location for issue with list">
+          <XMLLocation xpath="/foo/test/path"/>
+          <XMLLocation xpath="/bar/test/path"/>
         </Locations>
         <Locations description="Location for issue">
           <InertialLocation x="1.0" y="2.0" z="3.0"/>

@@ -216,7 +216,6 @@ def main():
         issue_id=issue_id,
         row=1,
         column=0,
-        file_type="odr",
         description="Location for issue",
     )
 

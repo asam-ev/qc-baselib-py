@@ -259,13 +259,11 @@ class Result:
         issue_id: int,
         row: int,
         column: int,
-        file_type: str,
         description: str,
     ) -> None:
         file_location = result.FileLocationType(
             row=row,
             column=column,
-            file_type=file_type,
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
@@ -282,10 +280,16 @@ class Result:
         checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
-        xpath: str,
+        xpath: Union[str, List[str]],
         description: str,
     ) -> None:
-        xml_location = result.XMLLocationType(xpath=xpath)
+        xml_locations = []
+
+        if type(xpath) == str:
+            xml_locations.append(result.XMLLocationType(xpath=xpath))
+        elif type(xpath) == list:
+            for path in xpath:
+                xml_locations.append(result.XMLLocationType(xpath=path))
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
 
@@ -293,7 +297,7 @@ class Result:
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
         issue.locations.append(
-            result.LocationType(xml_location=[xml_location], description=description)
+            result.LocationType(xml_location=xml_locations, description=description)
         )
 
     def add_inertial_location(
