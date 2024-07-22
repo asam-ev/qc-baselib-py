@@ -51,7 +51,7 @@ def run_text_report(input_filename: str, report_filename: str):
 
     # Checker bundles
     for checker_bundle in result.get_checker_bundle_results():
-        report_file.write(f"    CheckerBundle: {checker_bundle.name}\n")
+        report_file.write(f"\n    CheckerBundle: {checker_bundle.name}\n")
         report_file.write(f"    Build date: {checker_bundle.build_date}\n")
         report_file.write(f"    Build version: {checker_bundle.version}\n")
         report_file.write(f"    Description: {checker_bundle.description}\n")
@@ -67,7 +67,7 @@ def run_text_report(input_filename: str, report_filename: str):
         report_file.write("    " + "=" * 20 + "\n")
 
         for checker in checker_bundle.checkers:
-            report_file.write(f"        Checker:        {checker.checker_id}\n")
+            report_file.write(f"\n        Checker:        {checker.checker_id}\n")
             report_file.write(f"        Description:    {checker.description}\n")
             if checker.status is None:
                 status_string = ""
