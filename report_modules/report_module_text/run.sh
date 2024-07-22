@@ -5,4 +5,4 @@
 
 readonly CONFIG_FILE=$1
 
-python3 report_format_text.py -c $CONFIG_FILE
+python3 report_format_text.py -f $CONFIG_FILE

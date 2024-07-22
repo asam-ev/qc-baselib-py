@@ -4,10 +4,17 @@ import argparse
 
 from qc_baselib import Configuration, Result, IssueSeverity
 
-logging.basicConfig(level=logging.DEBUG)
 
+def is_valid_file(parser: argparse.ArgumentParser, arg: str) -> str:
+    """Check if provided argument follows specified extensions
 
-def is_valid_file(parser, arg):
+    Args:
+        parser (argparse.ArgumentParser): argparse object for handling errors
+        arg (str): input argument to check
+
+    Returns:
+        str: the argument if valid
+    """
     if not os.path.exists(arg):
         parser.error(f"The file {arg} does not exist!")
     if not (arg.endswith(".xml") or arg.endswith(".xqar")):
@@ -15,7 +22,13 @@ def is_valid_file(parser, arg):
     return arg
 
 
-def run_text_report(input_filename, report_filename):
+def run_text_report(input_filename: str, report_filename: str):
+    """Execute text report logic and put the results in report_filename
+
+    Args:
+        input_filename (str): Input file from where reading the results to write
+        report_filename (str): Txt output file used for representing the result
+    """
 
     result = Result()
     result.load_from_file(input_filename)
@@ -69,25 +82,27 @@ def run_text_report(input_filename, report_filename):
                 )
                 report_file.write(f"            Level:              {issue.level}\n")
             # Addressed rules
-            report_file.write("        " + "=" * 20 + "\n")
-            report_file.write("        " + "Addressed rules:\n")
-            report_file.write("        " + "=" * 20 + "\n")
-            for addressed_rule in checker.addressed_rule:
-                report_file.write(
-                    f"            Addressed Rule:     {addressed_rule.rule_uid}\n"
-                )
+            if len(checker.addressed_rule) > 0:
+
+                report_file.write("        " + "=" * 20 + "\n")
+                report_file.write("        " + "Addressed rules:\n")
+                report_file.write("        " + "=" * 20 + "\n")
+                for addressed_rule in checker.addressed_rule:
+                    report_file.write(
+                        f"            Addressed Rule:     {addressed_rule.rule_uid}\n"
+                    )
 
             # Metadata
-            report_file.write("        " + "=" * 20 + "\n")
-            report_file.write("        " + "Metadata:\n")
-            report_file.write("        " + "=" * 20 + "\n")
-
-            for metadata in checker.metadata:
-                report_file.write(f"            Metadata:        {metadata.key}\n")
-                report_file.write(f"            Value:        {metadata.value}\n")
-                report_file.write(
-                    f"            Description:        {metadata.description}\n"
-                )
+            if len(checker.metadata) > 0:
+                report_file.write("        " + "=" * 20 + "\n")
+                report_file.write("        " + "Metadata:\n")
+                report_file.write("        " + "=" * 20 + "\n")
+                for metadata in checker.metadata:
+                    report_file.write(f"            Metadata:        {metadata.key}\n")
+                    report_file.write(f"            Value:        {metadata.value}\n")
+                    report_file.write(
+                        f"            Description:        {metadata.description}\n"
+                    )
 
     report_file.close()
 
@@ -95,15 +110,15 @@ def run_text_report(input_filename, report_filename):
 def main():
     parser = argparse.ArgumentParser(description="Process XML configuration file.")
     parser.add_argument(
-        "-c",
-        "--config",
+        "-f",
+        "--file",
         type=lambda x: is_valid_file(parser, x),
         help="Path to the input configuration file. Must be a xml or xqar file",
         required=True,
     )
     args = parser.parse_args()
 
-    input_file = args.config
+    input_file = args.file
     input_extension = os.path.splitext(input_file)[1]
 
     # Default params
@@ -113,6 +128,7 @@ def main():
     if input_extension == ".xqar":
         input_filename = input_file
 
+    # If xml file is provided, the reap input and output file params from it
     if input_extension == ".xml":
         configuration = Configuration()
         configuration.load_from_file(input_file)
