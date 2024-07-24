@@ -44,9 +44,7 @@ class LocationType(BaseXmlModel):
     @model_validator(mode="after")
     def check_at_least_one_element(self) -> Any:
         if (
-            len(self.file_location)
-            + len(self.xml_location)
-            + len(self.inertial_location)
+            len(self.file_location) + len(self.xml_location) + len(self.inertial_location)
             < 1
         ):
             raise ValueError(
@@ -194,7 +192,7 @@ class StatusType(str, enum.Enum):
     SKIPPED = "skipped"
 
 
-class CheckerType(BaseXmlModel, validate_assignment=True):
+class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="ordered"):
     addressed_rule: List[RuleType] = element(tag="AddressedRule", default=[])
     issues: List[IssueType] = element(tag="Issue", default=[])
     metadata: List[MetadataType] = element(tag="Metadata", default=[])
