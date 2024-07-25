@@ -1,6 +1,6 @@
 # Python text report module
 
-The module reads an input .xqar file and create e report .txt file with a textual representation of the report content
+The module reads an input `.xqar` file and creates a report `.txt` file with the textual representation of the report content
 
 ## Usage
 
