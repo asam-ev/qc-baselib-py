@@ -117,25 +117,39 @@ class Result:
 
             bundle_text += "\n"
             bundle_text += f"{' ' * 4}> Parameters:\n"
+            param_text = ""
             for param in bundle.params:
-                param_text = f"{' ' * 8}+ {param.name} = {param.value}\n"
-                bundle_text += param_text
+                param_text += f"{' ' * 8}+ {param.name} = {param.value}\n"
+
+            if len(param_text) == 0:
+                param_text += f"{' ' * 8}None\n"
+
+            bundle_text += param_text
 
             bundle_text += "\n"
             bundle_text += f"{' ' * 4}> Checkers:\n"
+            checker_text = ""
             for checker in bundle.checkers:
-                checker_text = "\n"
+                checker_text += "\n"
                 checker_text += f"{' ' * 8}- Checker:     {checker.checker_id}\n"
                 checker_text += f"{' ' * 8}- Description: {checker.description}\n"
                 checker_text += f"{' ' * 8}- Status:      {checker.status.value if checker.status is not None else ''}\n"
                 checker_text += f"{' ' * 8}- Summary:     {checker.summary}\n"
 
                 checker_text += f"{' ' * 8}- Addressed rules:\n"
+                rule_text = ""
                 for rule in checker.addressed_rule:
-                    rule_text = f"{' ' * 12}+ rule: {rule.rule_uid}\n"
-                    checker_text += rule_text
+                    rule_text += f"{' ' * 12}+ rule: {rule.rule_uid}\n"
 
-                bundle_text += checker_text
+                if len(rule_text) == 0:
+                    rule_text += f"{' ' * 12}None"
+
+                checker_text += rule_text
+
+            if len(checker_text) == 0:
+                checker_text += f"{' ' * 8}None"
+
+            bundle_text += checker_text
 
             bundles_text += bundle_text
 
