@@ -100,6 +100,48 @@ class Result:
             )
             report_xml_file.write(xml_text)
 
+    def write_markdown_doc(self, markdown_file_path: str) -> None:
+        if self._report_results is None:
+            raise RuntimeError(
+                "Report documentation dump with empty report, the report needs to be loaded first"
+            )
+
+        bundles_text = "# Checker bundles\n\n"
+        for bundle in self._report_results.checker_bundles:
+            bundle_text = ""
+            bundle_text += f"## Checker bundle: **{bundle.name}**\n"
+            bundle_text += f"{' ' * 4}> Build date:     {bundle.build_date}\n"
+            bundle_text += f"{' ' * 4}> Build version:  {bundle.version}\n"
+            bundle_text += f"{' ' * 4}> Description:    {bundle.description}\n"
+            bundle_text += f"{' ' * 4}> Summary:        {bundle.summary}\n"
+
+            bundle_text += "\n"
+            bundle_text += f"{' ' * 4}> Parameters:\n"
+            for param in bundle.params:
+                param_text = f"{' ' * 8}+ {param.name} = {param.value}\n"
+                bundle_text += param_text
+
+            bundle_text += "\n"
+            bundle_text += f"{' ' * 4}> Checkers:\n"
+            for checker in bundle.checkers:
+                checker_text = "\n"
+                checker_text += f"{' ' * 8}- Checker:     {checker.checker_id}\n"
+                checker_text += f"{' ' * 8}- Description: {checker.description}\n"
+                checker_text += f"{' ' * 8}- Status:      {checker.status.value if checker.status is not None else ''}\n"
+                checker_text += f"{' ' * 8}- Summary:     {checker.summary}\n"
+
+                checker_text += f"{' ' * 8}- Addressed rules:\n"
+                for rule in checker.addressed_rule:
+                    rule_text = f"{' ' * 12}+ rule: {rule.rule_uid}\n"
+                    checker_text += rule_text
+
+                bundle_text += checker_text
+
+            bundles_text += bundle_text
+
+        with open(markdown_file_path, "wb") as doc_file:
+            doc_file.write(bundles_text.encode())
+
     def set_result_version(self, version: str) -> None:
         if self._report_results is None:
             self.version = version
