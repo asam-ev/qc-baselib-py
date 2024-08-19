@@ -1,19 +1,26 @@
-# Checker bundles
 
-## Checker bundle: **TestBundle**
-- Build date:     2024-05-31
-- Build version:  0.0.1
-- Description:    Example checker bundle
-- Summary:        Tested example checkers
+            This is the automatically generated documentation. 
+            The lists of checkers and addressed rules were exported from the 
+            information registered in the Result object for a particular run. 
+            Therefore, some checkers and addressed rules might be missing if 
+            they are not registered in that particular run. Double check with 
+            the implementation before using this generated documentation.
 
-### Parameters:
+# Checker bundle: TestBundle
+
+* Build version:  0.0.1
+* Description:    Example checker bundle
+* Summary:        Tested example checkers
+
+## Parameters
+
 * None
 
-### Checkers:
+## Checkers
 
-#### Checker:     TestChecker
+### TestChecker
+
 * Description: Test checker
-* Status:      completed
-* Summary:     Executed evaluation
-+ Addressed rules:
-    1. test.com:qc:1.0.0:qwerty.qwerty
+* Summary: Executed evaluation
+* Addressed rules:
+  * test.com:qc:1.0.0:qwerty.qwerty
