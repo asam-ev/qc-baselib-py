@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "qc_baselib"
+name = "asam-qc-baselib"
 version = "0.1.0"
 description = "Python base library for ASAM Quality Checker Framework"
 authors = ["Patrick Abrahão <patrick@ivex.ai>"]
