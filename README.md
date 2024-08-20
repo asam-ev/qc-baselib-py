@@ -1,43 +1,34 @@
 [![Tests](https://github.com/asam-ev/qc-baselib-py/actions/workflows/tests.yml/badge.svg)](https://github.com/asam-ev/qc-baselib-py/actions?workflow=Tests)
 
-# qc-baselib-py
+# asam-qc-baselib
 
-The Quality Checker Python Base library implements a Python interface for
+The ASAM Quality Checker Python Base Library (asam-qc-baselib) implements a Python interface for
 interacting with the configuration files and the results files from the
-ASAM Quality Checker framework. With it, users can create their own
-CheckerBundles or ReportModules.
+ASAM Quality Checker Framework. With it, users can create their own
+Checker Bundles or Report Modules in Python.
 
-The library features the main interfaces needed to implement an application:
+The library features the main interfaces needed to implement a module:
 
-- Configuration: for reading and writing QC Framework applications configuration.
-- Results: for reading and writing QC Framework result files.
+- Configuration: for reading and writing QC Framework [configuration files](https://github.com/asam-ev/qc-framework/blob/main/doc/manual/file_formats.md#configuration-file-xml).
+- Results: for reading and writing QC Framework [result files](https://github.com/asam-ev/qc-framework/blob/main/doc/manual/file_formats.md#result-file-xqar).
 
 ## Installation
 
-**TODO**: Add to Pypi (need to align how it will be done)
-
-From Pypi:
+### Installation using pip
 
 ```bash
-pip install qc_baselib
+pip install asam-qc-baselib@git+https://github.com/asam-ev/qc-baselib-py@main
 ```
 
-From Github repository:
+**Note**: To install from different sources, you can replace `@main` with
+your desired target. For example, `develop` branch as `@develop`.
 
-```bash
-pip install qc_baselib @ git+https://github.com/asam-ev/qc-baselib-py@main
-```
+### Installation from source for local development.
 
-Locally for developing using [Poetry](https://python-poetry.org/):
+Using [Poetry](https://python-poetry.org/):
 
 ```bash
 poetry install --with dev
-```
-
-Or locally for using the current test version in another applications
-
-```bash
-poetry install
 ```
 
 ## Examples
