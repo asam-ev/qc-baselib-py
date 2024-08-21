@@ -174,7 +174,7 @@ def test_config_write() -> None:
     os.remove(TEST_CONFIG_OUTPUT_PATH)
 
 
-def test_config_file_parse_order_independency() -> None:
+def test_config_file_parse_order_independence() -> None:
     config_unordered = Configuration()
     config_unordered.load_from_file(
         os.path.join(TEST_DATA_BASE_PATH, "unordered_config.xml")
