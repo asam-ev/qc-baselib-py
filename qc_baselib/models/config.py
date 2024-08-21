@@ -40,7 +40,7 @@ class CheckerBundleType(BaseXmlModel):
         return self
 
 
-class Config(BaseXmlModel, tag="Config"):
+class Config(BaseXmlModel, tag="Config", search_mode="ordered"):
     params: List[ParamType] = element(tag="Param", default=[])
     reports: List[ReportModuleType] = element(tag="ReportModule", default=[])
     checker_bundles: List[CheckerBundleType] = element(tag="CheckerBundle", default=[])
