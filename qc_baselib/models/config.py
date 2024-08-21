@@ -26,7 +26,7 @@ class ReportModuleType(BaseXmlModel):
     application: str = attr(name="application")
 
 
-class CheckerBundleType(BaseXmlModel):
+class CheckerBundleType(BaseXmlModel, search_mode="ordered"):
     params: List[ParamType] = element(tag="Param", default=[])
     checkers: List[CheckerType] = element(tag="Checker", default=[])
     application: str = attr(name="application")
