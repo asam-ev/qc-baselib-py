@@ -8,7 +8,7 @@ import pytest
 from qc_baselib.models import config, result
 from qc_baselib import Configuration
 
-
+TEST_DATA_BASE_PATH = "tests/data"
 DEMO_CONFIG_PATH = "tests/data/demo_checker_bundle_config.xml"
 EXAMPLE_OUTPUT_CONFIG_PATH = "tests/data/config_test_output.xml"
 TEST_CONFIG_OUTPUT_PATH = "tests/config_test_output.xml"
@@ -172,3 +172,27 @@ def test_config_write() -> None:
     assert output_xml_text == example_xml_text
 
     os.remove(TEST_CONFIG_OUTPUT_PATH)
+
+
+def test_config_file_parse_order_independency() -> None:
+    config_unordered = Configuration()
+    config_unordered.load_from_file(
+        os.path.join(TEST_DATA_BASE_PATH, "unordered_config.xml")
+    )
+
+    config_ordered = Configuration()
+    config_ordered.load_from_file(
+        os.path.join(TEST_DATA_BASE_PATH, "ordered_config.xml")
+    )
+
+    assert len(config_ordered._configuration.reports) == len(
+        config_unordered._configuration.reports
+    )
+
+    assert len(config_ordered._configuration.checker_bundles) == len(
+        config_unordered._configuration.checker_bundles
+    )
+
+    assert len(config_ordered._configuration.params) == len(
+        config_unordered._configuration.params
+    )
