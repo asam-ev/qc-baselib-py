@@ -3,7 +3,7 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from typing import Union
+from typing import Union, List
 from .models import config, common, IssueSeverity
 
 
@@ -88,6 +88,12 @@ class Configuration:
         )
 
         return bundle
+
+    def get_all_checker_bundles(self) -> List[config.CheckerBundleType]:
+        return self._configuration.checker_bundles
+
+    def get_all_report_modules(self) -> List[config.ReportModuleType]:
+        return self._configuration.reports
 
     def get_config_param(self, param_name: str) -> Union[str, int, float, None]:
         if len(self._configuration.params) == 0:
