@@ -33,7 +33,7 @@ class FileLocationType(BaseXmlModel):
     row: int = attr(name="row")
 
 
-class LocationType(BaseXmlModel):
+class LocationType(BaseXmlModel, search_mode="unordered"):
     file_location: List[FileLocationType] = element(tag="FileLocation", default=[])
     xml_location: List[XMLLocationType] = element(tag="XMLLocation", default=[])
     inertial_location: List[InertialLocationType] = element(
@@ -44,7 +44,9 @@ class LocationType(BaseXmlModel):
     @model_validator(mode="after")
     def check_at_least_one_element(self) -> Any:
         if (
-            len(self.file_location) + len(self.xml_location) + len(self.inertial_location)
+            len(self.file_location)
+            + len(self.xml_location)
+            + len(self.inertial_location)
             < 1
         ):
             raise ValueError(
@@ -192,7 +194,7 @@ class StatusType(str, enum.Enum):
     SKIPPED = "skipped"
 
 
-class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="ordered"):
+class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="unordered"):
     addressed_rule: List[RuleType] = element(tag="AddressedRule", default=[])
     issues: List[IssueType] = element(tag="Issue", default=[])
     metadata: List[MetadataType] = element(tag="Metadata", default=[])
@@ -225,7 +227,7 @@ class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="ordered")
         return self
 
 
-class CheckerBundleType(BaseXmlModel):
+class CheckerBundleType(BaseXmlModel, search_mode="unordered"):
     params: List[ParamType] = element(tag="Param", default=[])
     checkers: List[CheckerType] = element(tag="Checker", default=[])
     build_date: str = attr(name="build_date")
