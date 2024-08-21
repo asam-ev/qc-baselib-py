@@ -26,7 +26,7 @@ class ReportModuleType(BaseXmlModel):
     application: str = attr(name="application")
 
 
-class CheckerBundleType(BaseXmlModel, search_mode="ordered"):
+class CheckerBundleType(BaseXmlModel, search_mode="unordered"):
     params: List[ParamType] = element(tag="Param", default=[])
     checkers: List[CheckerType] = element(tag="Checker", default=[])
     application: str = attr(name="application")
@@ -40,7 +40,7 @@ class CheckerBundleType(BaseXmlModel, search_mode="ordered"):
         return self
 
 
-class Config(BaseXmlModel, tag="Config", search_mode="ordered"):
+class Config(BaseXmlModel, tag="Config", search_mode="unordered"):
     params: List[ParamType] = element(tag="Param", default=[])
     reports: List[ReportModuleType] = element(tag="ReportModule", default=[])
     checker_bundles: List[CheckerBundleType] = element(tag="CheckerBundle", default=[])

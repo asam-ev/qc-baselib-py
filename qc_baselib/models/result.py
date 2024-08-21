@@ -33,7 +33,7 @@ class FileLocationType(BaseXmlModel):
     row: int = attr(name="row")
 
 
-class LocationType(BaseXmlModel, search_mode="ordered"):
+class LocationType(BaseXmlModel, search_mode="unordered"):
     file_location: List[FileLocationType] = element(tag="FileLocation", default=[])
     xml_location: List[XMLLocationType] = element(tag="XMLLocation", default=[])
     inertial_location: List[InertialLocationType] = element(
@@ -194,7 +194,7 @@ class StatusType(str, enum.Enum):
     SKIPPED = "skipped"
 
 
-class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="ordered"):
+class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="unordered"):
     addressed_rule: List[RuleType] = element(tag="AddressedRule", default=[])
     issues: List[IssueType] = element(tag="Issue", default=[])
     metadata: List[MetadataType] = element(tag="Metadata", default=[])
@@ -227,7 +227,7 @@ class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="ordered")
         return self
 
 
-class CheckerBundleType(BaseXmlModel, search_mode="ordered"):
+class CheckerBundleType(BaseXmlModel, search_mode="unordered"):
     params: List[ParamType] = element(tag="Param", default=[])
     checkers: List[CheckerType] = element(tag="Checker", default=[])
     build_date: str = attr(name="build_date")
