@@ -196,3 +196,13 @@ def test_config_file_parse_order_independence() -> None:
     assert len(config_ordered._configuration.params) == len(
         config_unordered._configuration.params
     )
+
+
+def test_get_all_methods() -> None:
+    config = Configuration()
+    config.load_from_file(os.path.join(TEST_DATA_BASE_PATH, "unordered_config.xml"))
+
+    assert len(config._configuration.reports) == len(config.get_all_report_modules())
+    assert len(config._configuration.checker_bundles) == len(
+        config.get_all_checker_bundles()
+    )
