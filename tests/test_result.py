@@ -9,7 +9,9 @@ from qc_baselib import Result, IssueSeverity, StatusType
 DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
 EXTENDED_DEMO_REPORT_PATH = "tests/data/demo_checker_bundle_extended.xqar"
 EXAMPLE_OUTPUT_REPORT_PATH = "tests/data/result_test_output.xqar"
+EXAMPLE_OUTPUT_MARKDOWN_DOC_PATH = "tests/data/result_markdown_docs.md"
 TEST_REPORT_OUTPUT_PATH = "tests/result_test_output.xqar"
+TEST_MARKDOWN_DOC_OUTPUT_PATH = "tests/result_markdown_docs.md"
 
 
 @pytest.fixture
@@ -579,3 +581,67 @@ def test_get_issue_by_rule_uid() -> None:
         == f"Issue found at odr on rule uid {rule_uid_2}"
     )
     assert rule_uid_2_issues[0].level == IssueSeverity.INFORMATION
+
+
+def test_markdown_docs_output():
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid,
+    )
+
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=1,
+        column=0,
+        description="Location for issue",
+    )
+
+    result.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    result.write_markdown_doc(TEST_MARKDOWN_DOC_OUTPUT_PATH)
+
+    example_md_text = ""
+    output_md_text = ""
+    with open(EXAMPLE_OUTPUT_MARKDOWN_DOC_PATH, "r") as md_file:
+        example_md_text = md_file.read()
+    with open(TEST_MARKDOWN_DOC_OUTPUT_PATH, "r") as md_file:
+        output_md_text = md_file.read()
+
+    assert output_md_text == example_md_text
+
+    os.remove(TEST_MARKDOWN_DOC_OUTPUT_PATH)

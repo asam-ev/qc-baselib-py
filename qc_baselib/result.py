@@ -100,6 +100,67 @@ class Result:
             )
             report_xml_file.write(xml_text)
 
+    def write_markdown_doc(self, markdown_file_path: str) -> None:
+        if self._report_results is None:
+            raise RuntimeError(
+                "Report documentation dump with empty report, the report needs to be loaded first"
+            )
+
+        full_text = """
+            This is the automatically generated documentation. 
+            The lists of checkers and addressed rules were exported from the 
+            information registered in the Result object for a particular run. 
+            Therefore, some checkers and addressed rules might be missing if 
+            they are not registered in that particular run. Double check with 
+            the implementation before using this generated documentation.\n\n"""
+
+        for bundle in self._report_results.checker_bundles:
+            bundle_text = ""
+            bundle_text += f"# Checker bundle: {bundle.name}\n\n"
+            bundle_text += f"* Build version:  {bundle.version}\n"
+            bundle_text += f"* Description:    {bundle.description}\n"
+            bundle_text += f"* Summary:        {bundle.summary}\n"
+
+            bundle_text += "\n"
+            bundle_text += f"## Parameters\n\n"
+            param_text = ""
+            for param in bundle.params:
+                param_text += f"* {param.name}: \n"
+
+            if len(param_text) == 0:
+                param_text += f"* None\n"
+
+            bundle_text += param_text
+
+            bundle_text += "\n"
+            bundle_text += f"## Checkers\n"
+            checker_text = ""
+            for checker in bundle.checkers:
+                checker_text += "\n"
+                checker_text += f"### {checker.checker_id}\n\n"
+                checker_text += f"* Description: {checker.description}\n"
+                checker_text += f"* Summary: {checker.summary}\n"
+
+                checker_text += f"* Addressed rules:\n"
+                rule_text = ""
+                for rule in checker.addressed_rule:
+                    rule_text += f"  * {rule.rule_uid}\n"
+
+                if len(rule_text) == 0:
+                    rule_text += f"  * None"
+
+                checker_text += rule_text
+
+            if len(checker_text) == 0:
+                checker_text += f"* None"
+
+            bundle_text += checker_text
+
+            full_text += bundle_text
+
+        with open(markdown_file_path, "wb") as doc_file:
+            doc_file.write(full_text.encode())
+
     def set_result_version(self, version: str) -> None:
         if self._report_results is None:
             self.version = version
