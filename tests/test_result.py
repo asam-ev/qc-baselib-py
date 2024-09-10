@@ -730,6 +730,81 @@ def test_has_at_least_one_issue_from_rules() -> None:
     assert result_report.has_at_least_one_issue_from_rules({}) == False
 
 
+def test_has_at_least_one_issue_from_checkers() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid_1 = result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="first.rule",
+    )
+
+    result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_1,
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="SecondChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="SecondChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="second.rule",
+    )
+
+    assert (
+        result_report.has_at_least_one_issue_from_checkers(
+            {"SecondChecker", "ThirdChecker"}
+        )
+        == False
+    )
+
+    assert (
+        result_report.has_at_least_one_issue_from_checkers(
+            {"FirstChecker", "SecondChecker"}
+        )
+        == True
+    )
+
+    assert (
+        result_report.has_at_least_one_issue_from_checkers(
+            {"FirstChecker", "ThirdChecker"}
+        )
+        == True
+    )
+
+    assert result_report.has_at_least_one_issue_from_checkers({}) == False
+
+
 def test_registration_without_summary() -> None:
     result_report = Result()
 

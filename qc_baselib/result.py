@@ -568,3 +568,11 @@ class Result:
                         return True
 
         return False
+
+    def has_at_least_one_issue_from_checkers(self, check_id_set: Set[str]) -> bool:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if checker.checker_id in check_id_set and len(checker.issues) > 0:
+                    return True
+
+        return False
