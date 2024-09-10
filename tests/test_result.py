@@ -728,3 +728,22 @@ def test_has_at_least_one_issue_from_rules() -> None:
     )
 
     assert result_report.has_at_least_one_issue_from_rules({}) == False
+
+
+def test_has_at_least_one_issue_from_rules() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+    )
+
+    assert True

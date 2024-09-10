@@ -46,7 +46,6 @@ class Result:
         build_date="2024-05-31",
         description="Example checker bundle",
         version="0.0.1",
-        summary="Tested example checkers",
     )
 
     result.write_to_file("testResults.xqar")
@@ -225,7 +224,12 @@ class Result:
         return issue
 
     def register_checker_bundle(
-        self, build_date: str, description: str, name: str, version: str, summary: str
+        self,
+        build_date: str,
+        description: str,
+        name: str,
+        version: str,
+        summary: str = "",
     ) -> None:
         bundle = result.CheckerBundleType(
             build_date=build_date,
@@ -245,7 +249,7 @@ class Result:
         checker_bundle_name: str,
         checker_id: str,
         description: str,
-        summary: str,
+        summary: str = "",
     ) -> None:
 
         checker = result.CheckerType(
