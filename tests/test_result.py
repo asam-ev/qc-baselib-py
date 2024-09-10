@@ -647,7 +647,7 @@ def test_markdown_docs_output():
     os.remove(TEST_MARKDOWN_DOC_OUTPUT_PATH)
 
 
-def test_has_at_least_one_issue_from_rules() -> None:
+def test_has_issue_in_rules() -> None:
     result_report = Result()
 
     result_report.register_checker_bundle(
@@ -707,30 +707,30 @@ def test_has_at_least_one_issue_from_rules() -> None:
     )
 
     assert (
-        result_report.has_at_least_one_issue_from_rules(
+        result_report.has_issue_in_rules(
             {"test.com:qc:1.0.0:third.rule", "test.com:qc:1.0.0:fourth.rule"}
         )
         == False
     )
 
     assert (
-        result_report.has_at_least_one_issue_from_rules(
+        result_report.has_issue_in_rules(
             {"test.com:qc:1.0.0:first.rule", "test.com:qc:1.0.0:fourth.rule"}
         )
         == True
     )
 
     assert (
-        result_report.has_at_least_one_issue_from_rules(
+        result_report.has_issue_in_rules(
             {"test.com:qc:1.0.0:second.rule", "test.com:qc:1.0.0:fourth.rule"}
         )
         == True
     )
 
-    assert result_report.has_at_least_one_issue_from_rules({}) == False
+    assert result_report.has_issue_in_rules({}) == False
 
 
-def test_has_at_least_one_issue_from_checkers() -> None:
+def test_has_issue_in_checkers() -> None:
     result_report = Result()
 
     result_report.register_checker_bundle(
@@ -782,27 +782,125 @@ def test_has_at_least_one_issue_from_checkers() -> None:
     )
 
     assert (
-        result_report.has_at_least_one_issue_from_checkers(
-            {"SecondChecker", "ThirdChecker"}
+        result_report.has_issue_in_checkers({"SecondChecker", "ThirdChecker"}) == False
+    )
+
+    assert (
+        result_report.has_issue_in_checkers({"FirstChecker", "SecondChecker"}) == True
+    )
+
+    assert result_report.has_issue_in_checkers({"FirstChecker", "ThirdChecker"}) == True
+
+    assert result_report.has_issue_in_checkers({}) == False
+
+
+def test_all_checkers_completed_without_issue() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        description="",
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="SecondChecker",
+        description="",
+    )
+
+    assert result_report.all_checkers_completed_without_issue({"ThirdChecker"}) == False
+
+    assert (
+        result_report.all_checkers_completed_without_issue(
+            {"FirstChecker", "SecondChecker"}
         )
         == False
     )
 
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == True
     assert (
-        result_report.has_at_least_one_issue_from_checkers(
+        result_report.all_checkers_completed_without_issue(
+            {"FirstChecker", "SecondChecker"}
+        )
+        == False
+    )
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        status=StatusType.SKIPPED,
+    )
+
+    assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == False
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        status=StatusType.ERROR,
+    )
+
+    assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == False
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="SecondChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    assert (
+        result_report.all_checkers_completed_without_issue(
             {"FirstChecker", "SecondChecker"}
         )
         == True
     )
 
-    assert (
-        result_report.has_at_least_one_issue_from_checkers(
-            {"FirstChecker", "ThirdChecker"}
-        )
-        == True
+    rule_uid_1 = result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="first.rule",
     )
 
-    assert result_report.has_at_least_one_issue_from_checkers({}) == False
+    result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="FirstChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_1,
+    )
+
+    assert (
+        result_report.all_checkers_completed_without_issue(
+            {"FirstChecker", "SecondChecker"}
+        )
+        == False
+    )
+
+    assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == False
+    assert result_report.all_checkers_completed_without_issue({"SecondChecker"}) == True
+    assert result_report.all_checkers_completed_without_issue({}) == True
 
 
 def test_registration_without_summary() -> None:

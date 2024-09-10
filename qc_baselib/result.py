@@ -7,7 +7,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import Union, List, Set
 from lxml import etree
-from .models import IssueSeverity, result
+from .models import IssueSeverity, StatusType, result
 import logging
 
 REPORT_OUTPUT_FORMAT = "xqar"
@@ -426,7 +426,7 @@ class Result:
         issue.domain_specific_info.append(domain_specific_tag)
 
     def set_checker_status(
-        self, checker_bundle_name: str, checker_id: str, status: result.StatusType
+        self, checker_bundle_name: str, checker_id: str, status: StatusType
     ) -> None:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
@@ -558,7 +558,7 @@ class Result:
 
         return rule_issues
 
-    def has_at_least_one_issue_from_rules(self, rule_uid_set: Set[str]) -> bool:
+    def has_issue_in_rules(self, rule_uid_set: Set[str]) -> bool:
         for bundle in self._report_results.checker_bundles:
             for checker in bundle.checkers:
                 for issue in checker.issues:
@@ -567,10 +567,31 @@ class Result:
 
         return False
 
-    def has_at_least_one_issue_from_checkers(self, check_id_set: Set[str]) -> bool:
+    def has_issue_in_checkers(self, check_id_set: Set[str]) -> bool:
         for bundle in self._report_results.checker_bundles:
             for checker in bundle.checkers:
                 if checker.checker_id in check_id_set and len(checker.issues) > 0:
                     return True
 
         return False
+
+    def all_checkers_completed_without_issue(self, check_id_set: Set[str]) -> bool:
+        checker_id_map = dict()
+        for checker_id in check_id_set:
+            checker_id_map[checker_id] = False
+
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if (
+                    checker.checker_id in check_id_set
+                    and checker.status == StatusType.COMPLETED
+                    and len(checker.issues) == 0
+                ):
+                    checker_id_map[checker.checker_id] = True
+
+        result = True
+
+        for _, checker_result in checker_id_map.items():
+            result = result and checker_result
+
+        return result
