@@ -645,3 +645,87 @@ def test_markdown_docs_output():
     assert output_md_text == example_md_text
 
     os.remove(TEST_MARKDOWN_DOC_OUTPUT_PATH)
+
+
+def test_has_at_least_one_issue_from_rules() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid_1 = result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="first.rule",
+    )
+
+    result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_1,
+    )
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    rule_uid_2 = result_report.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="second.rule",
+    )
+
+    result_report.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid_2,
+    )
+
+    first_rule_uid = "test.com:qc:1.0.0:first.rule"
+    second_rule_uid = "test.com:qc:1.0.0:second.rule"
+
+    assert (
+        result_report.has_at_least_one_issue_from_rules(
+            {"test.com:qc:1.0.0:third.rule", "test.com:qc:1.0.0:fourth.rule"}
+        )
+        == False
+    )
+
+    assert (
+        result_report.has_at_least_one_issue_from_rules(
+            {"test.com:qc:1.0.0:first.rule", "test.com:qc:1.0.0:fourth.rule"}
+        )
+        == True
+    )
+
+    assert (
+        result_report.has_at_least_one_issue_from_rules(
+            {"test.com:qc:1.0.0:second.rule", "test.com:qc:1.0.0:fourth.rule"}
+        )
+        == True
+    )
