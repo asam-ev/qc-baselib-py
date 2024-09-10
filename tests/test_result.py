@@ -726,3 +726,5 @@ def test_has_at_least_one_issue_from_rules() -> None:
         )
         == True
     )
+
+    assert result_report.has_at_least_one_issue_from_rules({}) == False
