@@ -706,9 +706,6 @@ def test_has_at_least_one_issue_from_rules() -> None:
         rule_uid=rule_uid_2,
     )
 
-    first_rule_uid = "test.com:qc:1.0.0:first.rule"
-    second_rule_uid = "test.com:qc:1.0.0:second.rule"
-
     assert (
         result_report.has_at_least_one_issue_from_rules(
             {"test.com:qc:1.0.0:third.rule", "test.com:qc:1.0.0:fourth.rule"}
