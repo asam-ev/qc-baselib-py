@@ -119,13 +119,12 @@ class Result:
             bundle_text += f"# Checker bundle: {bundle.name}\n\n"
             bundle_text += f"* Build version:  {bundle.version}\n"
             bundle_text += f"* Description:    {bundle.description}\n"
-            bundle_text += f"* Summary:        {bundle.summary}\n"
 
             bundle_text += "\n"
             bundle_text += f"## Parameters\n\n"
             param_text = ""
             for param in bundle.params:
-                param_text += f"* {param.name}: \n"
+                param_text += f"* {param.name} \n"
 
             if len(param_text) == 0:
                 param_text += f"* None\n"
@@ -139,7 +138,6 @@ class Result:
                 checker_text += "\n"
                 checker_text += f"### {checker.checker_id}\n\n"
                 checker_text += f"* Description: {checker.description}\n"
-                checker_text += f"* Summary: {checker.summary}\n"
 
                 checker_text += f"* Addressed rules:\n"
                 rule_text = ""
