@@ -730,7 +730,7 @@ def test_has_at_least_one_issue_from_rules() -> None:
     assert result_report.has_at_least_one_issue_from_rules({}) == False
 
 
-def test_has_at_least_one_issue_from_rules() -> None:
+def test_registration_without_summary() -> None:
     result_report = Result()
 
     result_report.register_checker_bundle(
