@@ -5,7 +5,7 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Union, List, Dict, Any
+from typing import Union, List, Set
 from lxml import etree
 from .models import IssueSeverity, result
 
@@ -544,3 +544,12 @@ class Result:
                         rule_issues.append(issue)
 
         return rule_issues
+
+    def has_at_least_one_issue_from_rules(self, rule_uid_set: Set[str]) -> bool:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                for issue in checker.issues:
+                    if issue.rule_uid in rule_uid_set:
+                        return True
+
+        return False
