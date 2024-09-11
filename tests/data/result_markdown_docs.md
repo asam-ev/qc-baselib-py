@@ -10,7 +10,6 @@
 
 * Build version:  0.0.1
 * Description:    Example checker bundle
-* Summary:        Tested example checkers
 
 ## Parameters
 
@@ -21,6 +20,5 @@
 ### TestChecker
 
 * Description: Test checker
-* Summary: Executed evaluation
 * Addressed rules:
   * test.com:qc:1.0.0:qwerty.qwerty
