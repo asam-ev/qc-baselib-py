@@ -606,3 +606,11 @@ class Result:
                     return checker.status
 
         return None
+
+    def all_checkers_completed(self) -> bool:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if checker.status != StatusType.COMPLETED:
+                    return False
+
+        return True
