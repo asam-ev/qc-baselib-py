@@ -595,3 +595,14 @@ class Result:
             result = result and checker_result
 
         return result
+
+    def get_checker_status(self, checker_id: str) -> Union[None, StatusType]:
+        """
+        Return None if the checker is not found.
+        """
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if checker.checker_id == checker_id:
+                    return checker.status
+
+        return None
