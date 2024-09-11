@@ -920,3 +920,117 @@ def test_registration_without_summary() -> None:
     )
 
     assert True
+
+
+def test_get_checker_status() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+    )
+
+    assert result_report.get_checker_status("TestChecker") == None
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="",
+    )
+
+    assert result_report.get_checker_status("TestChecker") == None
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    assert result_report.get_checker_status("TestChecker") == StatusType.COMPLETED
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.SKIPPED,
+    )
+
+    assert result_report.get_checker_status("TestChecker") == StatusType.SKIPPED
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.ERROR,
+    )
+
+    assert result_report.get_checker_status("TestChecker") == StatusType.ERROR
+
+
+def test_all_checkers_completed() -> None:
+    result_report = Result()
+
+    result_report.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+    )
+
+    assert result_report.all_checkers_completed() == True
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="",
+    )
+
+    assert result_report.all_checkers_completed() == False
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    assert result_report.all_checkers_completed() == True
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.SKIPPED,
+    )
+
+    assert result_report.all_checkers_completed() == False
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.ERROR,
+    )
+
+    assert result_report.all_checkers_completed() == False
+
+    result_report.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="SecondTestChecker",
+        description="",
+    )
+
+    assert result_report.all_checkers_completed() == False
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    assert result_report.all_checkers_completed() == False
+
+    result_report.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="SecondTestChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    assert result_report.all_checkers_completed() == True
