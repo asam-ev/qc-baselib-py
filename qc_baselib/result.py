@@ -5,9 +5,10 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Union, List, Dict, Any
+from typing import Union, List, Set
 from lxml import etree
-from .models import IssueSeverity, result
+from .models import IssueSeverity, StatusType, result
+import logging
 
 REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
@@ -46,7 +47,6 @@ class Result:
         build_date="2024-05-31",
         description="Example checker bundle",
         version="0.0.1",
-        summary="Tested example checkers",
     )
 
     result.write_to_file("testResults.xqar")
@@ -119,13 +119,12 @@ class Result:
             bundle_text += f"# Checker bundle: {bundle.name}\n\n"
             bundle_text += f"* Build version:  {bundle.version}\n"
             bundle_text += f"* Description:    {bundle.description}\n"
-            bundle_text += f"* Summary:        {bundle.summary}\n"
 
             bundle_text += "\n"
             bundle_text += f"## Parameters\n\n"
             param_text = ""
             for param in bundle.params:
-                param_text += f"* {param.name}: \n"
+                param_text += f"* {param.name} \n"
 
             if len(param_text) == 0:
                 param_text += f"* None\n"
@@ -139,7 +138,6 @@ class Result:
                 checker_text += "\n"
                 checker_text += f"### {checker.checker_id}\n\n"
                 checker_text += f"* Description: {checker.description}\n"
-                checker_text += f"* Summary: {checker.summary}\n"
 
                 checker_text += f"* Addressed rules:\n"
                 rule_text = ""
@@ -225,7 +223,12 @@ class Result:
         return issue
 
     def register_checker_bundle(
-        self, build_date: str, description: str, name: str, version: str, summary: str
+        self,
+        build_date: str,
+        description: str,
+        name: str,
+        version: str,
+        summary: str = "",
     ) -> None:
         bundle = result.CheckerBundleType(
             build_date=build_date,
@@ -245,7 +248,7 @@ class Result:
         checker_bundle_name: str,
         checker_id: str,
         description: str,
-        summary: str,
+        summary: str = "",
     ) -> None:
 
         checker = result.CheckerType(
@@ -280,6 +283,16 @@ class Result:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         checker.addressed_rule.append(rule)
+
+        number_of_addressed_rules = len(checker.addressed_rule)
+        if number_of_addressed_rules > 1:
+            logging.warning(
+                f"There are {number_of_addressed_rules} rules registered to the check"
+                f" {checker_id}. A check should address exactly one rule, unless there"
+                " is a strong reason not to. See the following document for more"
+                " information:"
+                " https://github.com/asam-ev/qc-framework/blob/main/doc/manual/checker_library.md#check-characteristics"
+            )
 
         return rule.rule_uid
 
@@ -413,7 +426,7 @@ class Result:
         issue.domain_specific_info.append(domain_specific_tag)
 
     def set_checker_status(
-        self, checker_bundle_name: str, checker_id: str, status: result.StatusType
+        self, checker_bundle_name: str, checker_id: str, status: StatusType
     ) -> None:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
@@ -544,3 +557,60 @@ class Result:
                         rule_issues.append(issue)
 
         return rule_issues
+
+    def has_issue_in_rules(self, rule_uid_set: Set[str]) -> bool:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                for issue in checker.issues:
+                    if issue.rule_uid in rule_uid_set:
+                        return True
+
+        return False
+
+    def has_issue_in_checkers(self, check_id_set: Set[str]) -> bool:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if checker.checker_id in check_id_set and len(checker.issues) > 0:
+                    return True
+
+        return False
+
+    def all_checkers_completed_without_issue(self, check_id_set: Set[str]) -> bool:
+        checker_id_map = dict()
+        for checker_id in check_id_set:
+            checker_id_map[checker_id] = False
+
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if (
+                    checker.checker_id in check_id_set
+                    and checker.status == StatusType.COMPLETED
+                    and len(checker.issues) == 0
+                ):
+                    checker_id_map[checker.checker_id] = True
+
+        result = True
+
+        for _, checker_result in checker_id_map.items():
+            result = result and checker_result
+
+        return result
+
+    def get_checker_status(self, checker_id: str) -> Union[None, StatusType]:
+        """
+        Return None if the checker is not found.
+        """
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if checker.checker_id == checker_id:
+                    return checker.status
+
+        return None
+
+    def all_checkers_completed(self) -> bool:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                if checker.status != StatusType.COMPLETED:
+                    return False
+
+        return True
