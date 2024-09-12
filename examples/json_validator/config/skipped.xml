@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Config>
+
+    <Param name="JsonFile" value="data/non_existing_file.json" />
+
+    <CheckerBundle application="jsonBundle">
+        <Param name="resultFile" value="json_bundle_report.xqar" />
+        <Checker checkerId="jsonChecker" maxLevel="1" minLevel="3" />
+    </CheckerBundle>
+
+
+    <ReportModule application="TextReport">
+        <Param name="strInputFile" value="Result.xqar" />
+        <Param name="strReportFile" value="Report.txt" />
+    </ReportModule>
+
+</Config>

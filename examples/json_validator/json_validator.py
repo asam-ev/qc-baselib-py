@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import argparse
 import logging
 from datetime import datetime
@@ -19,7 +19,7 @@ def is_valid_json(file_path):
         with open(file_path, "r") as file:
             json.load(file)
         return True
-    except (json.JSONDecodeError, FileNotFoundError, IOError):
+    except json.JSONDecodeError:
         return False
 
 
@@ -46,7 +46,7 @@ def main():
     logging.info(f"JsonFile = {json_file}")
     logging.info(f"resultFile = {result_file}")
 
-    # 1. Register checker bundle
+    # Register checker bundle
     result.register_checker_bundle(
         name=BUNDLE_NAME,
         build_date=datetime.today().strftime("%Y-%m-%d"),
@@ -56,7 +56,7 @@ def main():
     )
     result.set_result_version(version=BUNDLE_VERSION)
 
-    # 2. Register checker
+    # Register checker
     result.register_checker(
         checker_bundle_name=BUNDLE_NAME,
         checker_id=CHECKER_ID,
@@ -74,29 +74,40 @@ def main():
         rule_full_name="valid_schema",
     )
 
-    # Execute the check logic
-    is_valid = is_valid_json(json_file)
+    # Check the precondition (whether the input file exists).
+    file_path = Path(json_file)
+    if file_path.exists():
+        # Execute the check logic as the precondition holds
+        is_valid = is_valid_json(json_file)
 
-    if not is_valid:
-        issue_id = result.register_issue(
+        if not is_valid:
+            issue_id = result.register_issue(
+                checker_bundle_name=BUNDLE_NAME,
+                checker_id=CHECKER_ID,
+                description="The input file is not a valid json file.",
+                level=IssueSeverity.ERROR,
+                rule_uid=rule_uid,
+            )
+
+        logging.info(
+            f"Issues found - {result.get_checker_issue_count(checker_bundle_name=BUNDLE_NAME, checker_id=CHECKER_ID)}"
+        )
+        result.set_checker_status(
             checker_bundle_name=BUNDLE_NAME,
             checker_id=CHECKER_ID,
-            description="Issue flagging when input file contains no valid json info",
-            level=IssueSeverity.ERROR,
-            rule_uid=rule_uid,
+            status=StatusType.COMPLETED,
+        )
+    else:
+        # Skip the check as the precondition does not hold
+        result.set_checker_status(
+            checker_bundle_name=BUNDLE_NAME,
+            checker_id=CHECKER_ID,
+            status=StatusType.SKIPPED,
         )
 
-    logging.info(
-        f"Issues found - {result.get_checker_issue_count(checker_bundle_name=BUNDLE_NAME, checker_id=CHECKER_ID)}"
-    )
-    result.set_checker_status(
-        checker_bundle_name=BUNDLE_NAME,
-        checker_id=CHECKER_ID,
-        status=StatusType.COMPLETED,
-    )
-
-    # 4. Write result file
+    # Write result file
     result.write_to_file(result_file)
+    result.write_markdown_doc("generated_documentation.md")
 
     logging.info(f"Report file written to {result_file}")
     logging.info(f"Done")
