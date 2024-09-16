@@ -86,6 +86,11 @@ class Result:
             self._report_results = result.CheckerResults.from_xml(xml_text)
 
     def write_to_file(self, xml_output_file_path: str, generate_summary=False) -> None:
+        """
+        generate_summary : bool
+            Automatically generate a summary for each checker and checker bundle.
+            The generated summary will be appended to the current summary.
+        """
         if self._report_results is None:
             raise RuntimeError(
                 "Report dump with empty report, the report needs to be loaded first"
@@ -216,6 +221,10 @@ class Result:
     def add_checker_bundle_summary(
         self, checker_bundle_name: str, content: str
     ) -> None:
+        """
+        Add content to the existing summary of a checker bundle.
+        The content will be appended to the current summary.
+        """
         bundle = self._get_checker_bundle(checker_bundle_name)
         if bundle.summary == "":
             bundle.summary = content
@@ -225,6 +234,10 @@ class Result:
     def add_checker_summary(
         self, checker_bundle_name: str, checker_id: str, content: str
     ) -> None:
+        """
+        Add content to the existing summary of a checker.
+        The content will be appended to the current summary.
+        """
         bundle = self._get_checker_bundle(checker_bundle_name)
         checker = self._get_checker(bundle, checker_id)
         if checker.summary == "":
