@@ -48,14 +48,14 @@ def test_result_write() -> None:
         build_date="2024-05-31",
         description="Example checker bundle",
         version="0.0.1",
-        summary="Tested example checkers",
+        summary="Tested example checkers.",
     )
 
     result.register_checker(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         description="Test checker",
-        summary="Executed evaluation",
+        summary="Executed evaluation.",
     )
 
     rule_uid = result.register_rule(
@@ -113,7 +113,16 @@ def test_result_write() -> None:
         status=StatusType.COMPLETED,
     )
 
-    result.write_to_file(TEST_REPORT_OUTPUT_PATH)
+    result.add_checker_bundle_summary(
+        checker_bundle_name="TestBundle", content="Extra summary for checker bundle."
+    )
+    result.add_checker_summary(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        content="Extra summary for checker.",
+    )
+
+    result.write_to_file(TEST_REPORT_OUTPUT_PATH, generate_summary=True)
 
     example_xml_text = ""
     output_xml_text = ""
