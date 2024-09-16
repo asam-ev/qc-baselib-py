@@ -85,11 +85,16 @@ class Result:
             xml_text = report_xml_file.read()
             self._report_results = result.CheckerResults.from_xml(xml_text)
 
-    def write_to_file(self, xml_output_file_path: str) -> None:
+    def write_to_file(self, xml_output_file_path: str, generate_summary=False) -> None:
         if self._report_results is None:
             raise RuntimeError(
                 "Report dump with empty report, the report needs to be loaded first"
             )
+
+        if generate_summary:
+            self._generate_checker_bundle_summary()
+            self._generate_checker_summary()
+
         with open(xml_output_file_path, "wb") as report_xml_file:
             xml_text = self._report_results.to_xml(
                 pretty_print=True,
@@ -165,6 +170,67 @@ class Result:
             self._report_results = result.CheckerBundleType(version=version)
         else:
             self._report_results.version = version
+
+    def _generate_checker_bundle_summary(self) -> None:
+        for bundle in self._report_results.checker_bundles:
+            number_of_checkers = 0
+            number_of_completed_checkers = 0
+            number_of_skipped_checkers = 0
+            number_of_error_checkers = 0
+            number_of_no_status_checkers = 0
+
+            for checker in bundle.checkers:
+                number_of_checkers += 1
+                if checker.status == StatusType.COMPLETED:
+                    number_of_completed_checkers += 1
+                elif checker.status == StatusType.SKIPPED:
+                    number_of_skipped_checkers += 1
+                elif checker.status == StatusType.ERROR:
+                    number_of_error_checkers += 1
+                else:
+                    number_of_no_status_checkers += 1
+
+            summary = (
+                f"{number_of_checkers} checker(s) are executed. "
+                f"{number_of_completed_checkers} checker(s) are completed. {number_of_skipped_checkers} checker(s) are skipped. "
+                f"{number_of_error_checkers} checker(s) have internal error and {number_of_no_status_checkers} checker(s) do not contain status."
+            )
+
+            if bundle.summary == "":
+                bundle.summary = summary
+            else:
+                bundle.summary += f" {summary}"
+
+    def _generate_checker_summary(self) -> None:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                number_of_issues = len(checker.issues)
+
+                summary = f"{number_of_issues} issue(s) are found."
+
+                if checker.summary == "":
+                    checker.summary = summary
+                else:
+                    checker.summary += f" {summary}"
+
+    def add_checker_bundle_summary(
+        self, checker_bundle_name: str, content: str
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        if bundle.summary == "":
+            bundle.summary = content
+        else:
+            bundle.summary += f" {content}"
+
+    def add_checker_summary(
+        self, checker_bundle_name: str, checker_id: str, content: str
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        checker = self._get_checker(bundle, checker_id)
+        if checker.summary == "":
+            checker.summary = content
+        else:
+            checker.summary += f" {content}"
 
     def _get_checker_bundle(self, checker_bundle_name: str) -> result.CheckerBundleType:
         if self._report_results is None:
