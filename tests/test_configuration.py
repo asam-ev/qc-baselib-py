@@ -219,5 +219,5 @@ def test_get_all_global_param() -> None:
 
     assert len(all_global_params) == 3
     assert all_global_params["testConfigParamStr"] == "testValue"
-    assert all_global_params["testConfigParamInt"] == "1"
-    assert all_global_params["testConfigParamFloat"] == "2.0"
+    assert all_global_params["testConfigParamInt"] == 1
+    assert all_global_params["testConfigParamFloat"] == 2.0

@@ -6,7 +6,6 @@ from qc_baselib.models import config, result
 from qc_baselib import Result, IssueSeverity, StatusType, Configuration
 
 
-TEST_DATA_BASE_PATH = "tests/data"
 DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
 EXTENDED_DEMO_REPORT_PATH = "tests/data/demo_checker_bundle_extended.xqar"
 EXAMPLE_OUTPUT_REPORT_PATH = "tests/data/result_test_output.xqar"
