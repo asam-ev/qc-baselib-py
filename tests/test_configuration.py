@@ -206,3 +206,18 @@ def test_get_all_methods() -> None:
     assert len(config._configuration.checker_bundles) == len(
         config.get_all_checker_bundles()
     )
+
+
+def test_get_all_global_param() -> None:
+    config = Configuration()
+
+    config.set_config_param("testConfigParamStr", "testValue")
+    config.set_config_param("testConfigParamInt", 1)
+    config.set_config_param("testConfigParamFloat", 2.0)
+
+    all_global_params = config.get_all_global_config_param()
+
+    assert len(all_global_params) == 3
+    assert all_global_params["testConfigParamStr"] == "testValue"
+    assert all_global_params["testConfigParamInt"] == 1
+    assert all_global_params["testConfigParamFloat"] == 2.0

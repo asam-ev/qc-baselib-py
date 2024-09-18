@@ -1,9 +1,9 @@
 
-            This is the automatically generated documentation. 
-            The lists of checkers and addressed rules were exported from the 
-            information registered in the Result object for a particular run. 
-            Therefore, some checkers and addressed rules might be missing if 
-            they are not registered in that particular run. Double check with 
+            This is the automatically generated documentation.
+            The lists of checkers and addressed rules were exported from the
+            information registered in the Result object for a particular run.
+            Therefore, some checkers and addressed rules might be missing if
+            they are not registered in that particular run. Double check with
             the implementation before using this generated documentation.
 
 # Checker bundle: TestBundle

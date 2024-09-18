@@ -3,7 +3,7 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from typing import Union, List
+from typing import Union, List, Dict
 from .models import config, common, IssueSeverity
 
 
@@ -108,6 +108,12 @@ class Configuration:
             return None
 
         return param.value
+
+    def get_all_global_config_param(self) -> Dict[str, Union[str, int, float]]:
+        params = {}
+        for param in self._configuration.params:
+            params[param.name] = param.value
+        return params
 
     def get_checker_bundle_param(
         self, checker_bundle_name: str, param_name: str
