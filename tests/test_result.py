@@ -3,7 +3,7 @@ import pytest
 from lxml import etree
 from pydantic_core import ValidationError
 from qc_baselib.models import config, result
-from qc_baselib import Result, IssueSeverity, StatusType
+from qc_baselib import Result, IssueSeverity, StatusType, Configuration
 
 
 DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
@@ -1043,3 +1043,203 @@ def test_all_checkers_completed() -> None:
     )
 
     assert result_report.all_checkers_completed() == True
+
+
+def test_add_get_param_to_checker_bundle() -> None:
+    result = Result()
+    result.register_checker_bundle(
+        build_date="",
+        description="",
+        name="TestCheckerBundle",
+        version="",
+    )
+
+    result.add_param_to_checker_bundle(
+        checker_bundle_name="TestCheckerBundle", name="TestStrParam", value="TestStr"
+    )
+    result.add_param_to_checker_bundle(
+        checker_bundle_name="TestCheckerBundle", name="TestIntParam", value=1
+    )
+    result.add_param_to_checker_bundle(
+        checker_bundle_name="TestCheckerBundle", name="TestFloatParam", value=2.0
+    )
+
+    assert (
+        result.get_param_from_checker_bundle(
+            checker_bundle_name="TestCheckerBundle", param_name="TestStrParam"
+        )
+        == "TestStr"
+    )
+    assert (
+        result.get_param_from_checker_bundle(
+            checker_bundle_name="TestCheckerBundle", param_name="TestIntParam"
+        )
+        == 1
+    )
+    assert (
+        result.get_param_from_checker_bundle(
+            checker_bundle_name="TestCheckerBundle", param_name="TestFloatParam"
+        )
+        == 2.0
+    )
+
+
+def test_add_get_param_to_checker() -> None:
+    result = Result()
+    result.register_checker_bundle(
+        build_date="",
+        description="",
+        name="TestCheckerBundle",
+        version="",
+    )
+    result.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        description="",
+    )
+
+    result.add_param_to_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="TestStrParam",
+        value="TestStr",
+    )
+    result.add_param_to_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="TestIntParam",
+        value=1,
+    )
+    result.add_param_to_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="TestFloatParam",
+        value=2.0,
+    )
+
+    assert (
+        result.get_param_from_checker(
+            checker_bundle_name="TestCheckerBundle",
+            checker_id="TestChecker",
+            param_name="TestStrParam",
+        )
+        == "TestStr"
+    )
+    assert (
+        result.get_param_from_checker(
+            checker_bundle_name="TestCheckerBundle",
+            checker_id="TestChecker",
+            param_name="TestIntParam",
+        )
+        == 1
+    )
+    assert (
+        result.get_param_from_checker(
+            checker_bundle_name="TestCheckerBundle",
+            checker_id="TestChecker",
+            param_name="TestFloatParam",
+        )
+        == 2.0
+    )
+
+
+def test_result_config_param_copy() -> None:
+    config = Configuration()
+    config.register_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        min_level=IssueSeverity.INFORMATION,
+        max_level=IssueSeverity.ERROR,
+    )
+
+    config.set_config_param(
+        name="testConfigParamStr",
+        value="testValue",
+    )
+    config.set_config_param(
+        name="testConfigParamInt",
+        value=1,
+    )
+    config.set_config_param(
+        name="testConfigParamFloat",
+        value=2.0,
+    )
+
+    config.set_checker_bundle_param(
+        checker_bundle_name="TestCheckerBundle",
+        name="testConfigParamStr",
+        value="testValue",
+    )
+    config.set_checker_bundle_param(
+        checker_bundle_name="TestCheckerBundle",
+        name="testConfigParamInt",
+        value=1,
+    )
+    config.set_checker_bundle_param(
+        checker_bundle_name="TestCheckerBundle",
+        name="testConfigParamFloat",
+        value=2.0,
+    )
+
+    config.set_checker_param(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="testConfigParamStr",
+        value="testValue",
+    )
+    config.set_checker_param(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="testConfigParamInt",
+        value=1,
+    )
+    config.set_checker_param(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="testConfigParamFloat",
+        value=2.0,
+    )
+
+    result = Result()
+    result.register_checker_bundle(
+        build_date="",
+        description="",
+        name="TestCheckerBundle",
+        version="",
+    )
+    result.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        description="",
+    )
+
+    result.copy_param_from_config(config=config)
+
+    test_bundle = result.get_checker_bundle_result(
+        checker_bundle_name="TestCheckerBundle"
+    )
+    test_checker = result.get_checker_result(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+    )
+    config_bundle = config._get_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config_checker = next(
+        (
+            checker
+            for checker in config_bundle.checkers
+            if checker.checker_id == "TestChecker"
+        ),
+        None,
+    )
+
+    assert len(test_bundle.params) == len(config_bundle.params) + len(
+        config._configuration.params
+    )
+    assert len(test_checker.params) == len(config_checker.params)
+
+    assert test_bundle.params[0].name == config_bundle.params[0].name
+    assert test_bundle.params[0].value == config_bundle.params[0].value
+
+    assert test_checker.params[0].name == config_checker.params[0].name
+    assert test_checker.params[0].value == config_checker.params[0].value

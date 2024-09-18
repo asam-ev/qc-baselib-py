@@ -3,12 +3,16 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
+
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Union, List, Set
 from lxml import etree
-from .models import IssueSeverity, StatusType, result
-import logging
+
+from qc_baselib import Configuration
+from .models import IssueSeverity, StatusType, result, common
+
 
 REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
@@ -117,11 +121,11 @@ class Result:
             )
 
         full_text = """
-            This is the automatically generated documentation. 
-            The lists of checkers and addressed rules were exported from the 
-            information registered in the Result object for a particular run. 
-            Therefore, some checkers and addressed rules might be missing if 
-            they are not registered in that particular run. Double check with 
+            This is the automatically generated documentation.
+            The lists of checkers and addressed rules were exported from the
+            information registered in the Result object for a particular run.
+            Therefore, some checkers and addressed rules might be missing if
+            they are not registered in that particular run. Double check with
             the implementation before using this generated documentation.\n\n"""
 
         for bundle in self._report_results.checker_bundles:
@@ -693,3 +697,94 @@ class Result:
                     return False
 
         return True
+
+    def add_param_to_checker_bundle(
+        self, checker_bundle_name: str, name: str, value: Union[str, int, float]
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        bundle.params.append(common.ParamType(name=name, value=value))
+
+    def get_param_from_checker_bundle(
+        self, checker_bundle_name: str, param_name: str
+    ) -> Union[int, str, float, None]:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+
+        if len(bundle.params) == 0:
+            return None
+
+        param = next(
+            (param for param in bundle.params if param_name == param.name),
+            None,
+        )
+
+        if param is None:
+            return None
+
+        return param.value
+
+    def add_param_to_checker(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        name: str,
+        value: Union[str, int, float],
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        checker.params.append(common.ParamType(name=name, value=value))
+
+    def get_param_from_checker(
+        self, checker_bundle_name: str, checker_id: str, param_name: str
+    ) -> Union[int, str, float, None]:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+
+        if len(checker.params) == 0:
+            return None
+
+        param = next(
+            (param for param in checker.params if param_name == param.name),
+            None,
+        )
+
+        if param is None:
+            return None
+
+        return param.value
+
+    def copy_param_from_config(self, config: Configuration) -> None:
+        # Inject global Configuration parameters to Result checker bundles
+        for param_name, param_value in config.get_all_global_config_param().items():
+            result_checker_bundles = self._report_results.checker_bundles
+            for bundle in result_checker_bundles:
+                bundle.params.append(
+                    common.ParamType(name=param_name, value=param_value)
+                )
+
+        # Copy Configuration checker bundle and checker parameters to Result
+        for config_bundle in config.get_all_checker_bundles():
+            result_bundle = self._get_checker_bundle(
+                checker_bundle_name=config_bundle.application
+            )
+
+            if result_bundle is None:
+                continue
+
+            for param in config_bundle.params:
+                result_bundle.params.append(
+                    common.ParamType(name=param.name, value=param.value)
+                )
+
+            for config_checker in config_bundle.checkers:
+                result_checker = self._get_checker(
+                    bundle=result_bundle,
+                    checker_id=config_checker.checker_id,
+                )
+
+                if result_checker is None:
+                    continue
+
+                for param in config_checker.params:
+                    result_checker.params.append(
+                        common.ParamType(name=param.name, value=param.value)
+                    )

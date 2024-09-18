@@ -195,6 +195,7 @@ class StatusType(str, enum.Enum):
 
 
 class CheckerType(BaseXmlModel, validate_assignment=True, search_mode="unordered"):
+    params: List[ParamType] = element(tag="Param", default=[])
     addressed_rule: List[RuleType] = element(tag="AddressedRule", default=[])
     issues: List[IssueType] = element(tag="Issue", default=[])
     metadata: List[MetadataType] = element(tag="Metadata", default=[])
