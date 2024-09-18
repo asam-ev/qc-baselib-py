@@ -706,7 +706,7 @@ class Result:
 
     def get_param_from_checker_bundle(
         self, checker_bundle_name: str, param_name: str
-    ) -> None:
+    ) -> Union[int, str, float, None]:
         bundle = self._get_checker_bundle(checker_bundle_name)
 
         if len(bundle.params) == 0:
@@ -735,7 +735,7 @@ class Result:
 
     def get_param_from_checker(
         self, checker_bundle_name: str, checker_id: str, param_name: str
-    ) -> None:
+    ) -> Union[int, str, float, None]:
         bundle = self._get_checker_bundle(checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
 
