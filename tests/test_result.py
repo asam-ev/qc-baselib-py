@@ -1267,7 +1267,7 @@ def test_registering_checker_bundle_twice() -> None:
         )
 
     assert (
-        f"Checker bundle with name {bundle_name} already registered to results"
+        f"Checker bundle with name {bundle_name} is already registered to results"
         in str(exc_info.value)
     )
 
@@ -1300,7 +1300,7 @@ def test_registering_checker_twice() -> None:
         )
 
     assert (
-        f"Checker with id {checker_id} already registered to bundle {bundle_name}"
+        f"Checker with id {checker_id} is already registered to bundle {bundle_name}"
         in str(exc_info.value)
     )
 
@@ -1331,7 +1331,7 @@ def test_registering_checker_bundle_param_twice() -> None:
         )
 
     assert (
-        f"Param with name {param_name} already registered to bundle {bundle_name}"
+        f"Param with name {param_name} is already registered to bundle {bundle_name}"
         in str(exc_info.value)
     )
 
@@ -1372,6 +1372,6 @@ def test_registering_checker_param_twice() -> None:
         )
 
     assert (
-        f"Param with name {param_name} already registered to checker {checker_id} on bundle {bundle_name}"
+        f"Param with name {param_name} is already registered to checker {checker_id} on bundle {bundle_name}"
         in str(exc_info.value)
     )

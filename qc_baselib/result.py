@@ -327,7 +327,7 @@ class Result:
         for existing_bundle in self._report_results.checker_bundles:
             if existing_bundle.name == name:
                 raise RuntimeError(
-                    f"Checker bundle with name {name} already registered to results"
+                    f"Checker bundle with name {name} is already registered to results"
                 )
 
         self._report_results.checker_bundles.append(bundle)
@@ -349,7 +349,7 @@ class Result:
         for existing_checker in bundle.checkers:
             if existing_checker.checker_id == checker_id:
                 raise RuntimeError(
-                    f"Checker with id {checker_id} already registered to bundle {bundle.name}"
+                    f"Checker with id {checker_id} is already registered to bundle {bundle.name}"
                 )
 
         bundle.checkers.append(checker)
@@ -717,7 +717,7 @@ class Result:
         for exiting_param in bundle.params:
             if exiting_param.name == name:
                 raise RuntimeError(
-                    f"Param with name {name} already registered to bundle {checker_bundle_name}"
+                    f"Param with name {name} is already registered to bundle {checker_bundle_name}"
                 )
         bundle.params.append(common.ParamType(name=name, value=value))
 
@@ -751,7 +751,7 @@ class Result:
         for exiting_param in checker.params:
             if exiting_param.name == name:
                 raise RuntimeError(
-                    f"Param with name {name} already registered to checker {checker_id} on bundle {checker_bundle_name}"
+                    f"Param with name {name} is already registered to checker {checker_id} on bundle {checker_bundle_name}"
                 )
         checker.params.append(common.ParamType(name=name, value=value))
 
