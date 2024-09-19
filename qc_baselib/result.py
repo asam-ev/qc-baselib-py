@@ -324,6 +324,12 @@ class Result:
         if self._report_results is None:
             self._report_results = result.CheckerResults(version=DEFAULT_REPORT_VERSION)
 
+        for existing_bundle in self._report_results.checker_bundles:
+            if existing_bundle.name == name:
+                raise RuntimeError(
+                    f"Checker bundle with name {name} is already registered to results"
+                )
+
         self._report_results.checker_bundles.append(bundle)
 
     def register_checker(
@@ -339,6 +345,12 @@ class Result:
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        for existing_checker in bundle.checkers:
+            if existing_checker.checker_id == checker_id:
+                raise RuntimeError(
+                    f"Checker with id {checker_id} is already registered to bundle {bundle.name}"
+                )
 
         bundle.checkers.append(checker)
 
@@ -702,6 +714,11 @@ class Result:
         self, checker_bundle_name: str, name: str, value: Union[str, int, float]
     ) -> None:
         bundle = self._get_checker_bundle(checker_bundle_name)
+        for exiting_param in bundle.params:
+            if exiting_param.name == name:
+                raise RuntimeError(
+                    f"Param with name {name} is already registered to bundle {checker_bundle_name}"
+                )
         bundle.params.append(common.ParamType(name=name, value=value))
 
     def get_param_from_checker_bundle(
@@ -731,6 +748,11 @@ class Result:
     ) -> None:
         bundle = self._get_checker_bundle(checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        for exiting_param in checker.params:
+            if exiting_param.name == name:
+                raise RuntimeError(
+                    f"Param with name {name} is already registered to checker {checker_id} on bundle {checker_bundle_name}"
+                )
         checker.params.append(common.ParamType(name=name, value=value))
 
     def get_param_from_checker(
