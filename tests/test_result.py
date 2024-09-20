@@ -1375,3 +1375,116 @@ def test_registering_checker_param_twice() -> None:
         f"Param with name {param_name} is already registered to checker {checker_id} on bundle {bundle_name}"
         in str(exc_info.value)
     )
+
+
+def test_result_register_rule_by_uid() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers.",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation.",
+    )
+
+    result.register_rule_by_uid(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        rule_uid="test.com:qc:1.0.0:qwerty.qwerty",
+    )
+
+    bundle = result._get_checker_bundle(checker_bundle_name="TestBundle")
+
+    checker = result._get_checker(bundle=bundle, checker_id="TestChecker")
+
+    rules = checker.addressed_rule
+
+    assert len(rules) == 1
+    assert rules[0].rule_uid == "test.com:qc:1.0.0:qwerty.qwerty"
+
+
+def test_create_rule_id_validation() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"Invalid rule uid: .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com:qc:1.0.0",
+        )
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"Invalid rule uid: .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nemanating_entity\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid=":qc:1.0.0:qwerty.qwerty",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nstandard\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com::1.0.0:qwerty.qwerty",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\ndefinition_setting\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com:qc::qwerty.qwerty",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nrule_full_name\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com:qc:1.0.0:",
+        )
