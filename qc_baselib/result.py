@@ -391,6 +391,35 @@ class Result:
 
         return rule.rule_uid
 
+    def register_rule_by_uid(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        rule_uid: str,
+    ) -> None:
+        """
+        Rule uid will be registered to checker.
+
+        Rule uid needs to follow the proper schema, more information at:
+        https://github.com/asam-ev/qc-framework/blob/main/doc/manual/rule_uid_schema.md
+        """
+
+        splitted_uid = rule_uid.split(":")
+
+        if len(splitted_uid) < 4:
+            raise RuntimeError(
+                f"Invalid rule uid: {rule_uid}. The uid should be composed by 4 entities separated by ':'."
+            )
+
+        self.register_rule(
+            checker_bundle_name=checker_bundle_name,
+            checker_id=checker_id,
+            emanating_entity=splitted_uid[0],
+            standard=splitted_uid[1],
+            definition_setting=splitted_uid[2],
+            rule_full_name=splitted_uid[3],
+        )
+
     def register_issue(
         self,
         checker_bundle_name: str,
