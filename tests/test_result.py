@@ -1201,6 +1201,21 @@ def test_result_config_param_copy() -> None:
         value=2.0,
     )
 
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="FirstNonExistingTestChecker",
+        min_level=IssueSeverity.INFORMATION,
+        max_level=IssueSeverity.ERROR,
+    )
+
+    config.register_checker_bundle(checker_bundle_name="NonExistingTestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="NonExistingTestCheckerBundle",
+        checker_id="SecondNonExistingTestChecker",
+        min_level=IssueSeverity.INFORMATION,
+        max_level=IssueSeverity.ERROR,
+    )
+
     result = Result()
     result.register_checker_bundle(
         build_date="",
