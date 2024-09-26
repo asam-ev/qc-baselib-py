@@ -3,12 +3,16 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
+
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Union, List, Set
 from lxml import etree
-from .models import IssueSeverity, StatusType, result
-import logging
+
+from qc_baselib import Configuration
+from .models import IssueSeverity, StatusType, result, common
+
 
 REPORT_OUTPUT_FORMAT = "xqar"
 DEFAULT_REPORT_VERSION = "0.0.1"
@@ -85,11 +89,21 @@ class Result:
             xml_text = report_xml_file.read()
             self._report_results = result.CheckerResults.from_xml(xml_text)
 
-    def write_to_file(self, xml_output_file_path: str) -> None:
+    def write_to_file(self, xml_output_file_path: str, generate_summary=False) -> None:
+        """
+        generate_summary : bool
+            Automatically generate a summary for each checker and checker bundle.
+            The generated summary will be appended to the current summary.
+        """
         if self._report_results is None:
             raise RuntimeError(
                 "Report dump with empty report, the report needs to be loaded first"
             )
+
+        if generate_summary:
+            self._generate_checker_bundle_summary()
+            self._generate_checker_summary()
+
         with open(xml_output_file_path, "wb") as report_xml_file:
             xml_text = self._report_results.to_xml(
                 pretty_print=True,
@@ -107,11 +121,11 @@ class Result:
             )
 
         full_text = """
-            This is the automatically generated documentation. 
-            The lists of checkers and addressed rules were exported from the 
-            information registered in the Result object for a particular run. 
-            Therefore, some checkers and addressed rules might be missing if 
-            they are not registered in that particular run. Double check with 
+            This is the automatically generated documentation.
+            The lists of checkers and addressed rules were exported from the
+            information registered in the Result object for a particular run.
+            Therefore, some checkers and addressed rules might be missing if
+            they are not registered in that particular run. Double check with
             the implementation before using this generated documentation.\n\n"""
 
         for bundle in self._report_results.checker_bundles:
@@ -166,7 +180,78 @@ class Result:
         else:
             self._report_results.version = version
 
-    def _get_checker_bundle(self, checker_bundle_name: str) -> result.CheckerBundleType:
+    def _generate_checker_bundle_summary(self) -> None:
+        for bundle in self._report_results.checker_bundles:
+            number_of_checkers = 0
+            number_of_completed_checkers = 0
+            number_of_skipped_checkers = 0
+            number_of_error_checkers = 0
+            number_of_no_status_checkers = 0
+
+            for checker in bundle.checkers:
+                number_of_checkers += 1
+                if checker.status == StatusType.COMPLETED:
+                    number_of_completed_checkers += 1
+                elif checker.status == StatusType.SKIPPED:
+                    number_of_skipped_checkers += 1
+                elif checker.status == StatusType.ERROR:
+                    number_of_error_checkers += 1
+                else:
+                    number_of_no_status_checkers += 1
+
+            summary = (
+                f"{number_of_checkers} checker(s) are executed. "
+                f"{number_of_completed_checkers} checker(s) are completed. {number_of_skipped_checkers} checker(s) are skipped. "
+                f"{number_of_error_checkers} checker(s) have internal error and {number_of_no_status_checkers} checker(s) do not contain status."
+            )
+
+            if bundle.summary == "":
+                bundle.summary = summary
+            else:
+                bundle.summary += f" {summary}"
+
+    def _generate_checker_summary(self) -> None:
+        for bundle in self._report_results.checker_bundles:
+            for checker in bundle.checkers:
+                number_of_issues = len(checker.issues)
+
+                summary = f"{number_of_issues} issue(s) are found."
+
+                if checker.summary == "":
+                    checker.summary = summary
+                else:
+                    checker.summary += f" {summary}"
+
+    def add_checker_bundle_summary(
+        self, checker_bundle_name: str, content: str
+    ) -> None:
+        """
+        Add content to the existing summary of a checker bundle.
+        The content will be appended to the current summary.
+        """
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        if bundle.summary == "":
+            bundle.summary = content
+        else:
+            bundle.summary += f" {content}"
+
+    def add_checker_summary(
+        self, checker_bundle_name: str, checker_id: str, content: str
+    ) -> None:
+        """
+        Add content to the existing summary of a checker.
+        The content will be appended to the current summary.
+        """
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        checker = self._get_checker(bundle, checker_id)
+        if checker.summary == "":
+            checker.summary = content
+        else:
+            checker.summary += f" {content}"
+
+    def _get_checker_bundle_without_error(
+        self, checker_bundle_name: str
+    ) -> Union[None, result.CheckerBundleType]:
         if self._report_results is None:
             raise RuntimeError(
                 "Report not initialized. Initialize the report first by registering the version or a checker bundle."
@@ -181,6 +266,11 @@ class Result:
             None,
         )
 
+        return bundle
+
+    def _get_checker_bundle(self, checker_bundle_name: str) -> result.CheckerBundleType:
+        bundle = self._get_checker_bundle_without_error(checker_bundle_name)
+
         if bundle is None:
             raise RuntimeError(
                 f"Bundle not found. The specified {checker_bundle_name} does not exist on the report. Register the bundle first."
@@ -188,9 +278,9 @@ class Result:
 
         return bundle
 
-    def _get_checker(
+    def _get_checker_without_error(
         self, bundle: result.CheckerBundleType, checker_id: str
-    ) -> result.CheckerType:
+    ) -> Union[None, result.CheckerType]:
         checker = next(
             (
                 checker
@@ -199,6 +289,13 @@ class Result:
             ),
             None,
         )
+
+        return checker
+
+    def _get_checker(
+        self, bundle: result.CheckerBundleType, checker_id: str
+    ) -> result.CheckerType:
+        checker = self._get_checker_without_error(bundle, checker_id)
 
         if checker is None:
             raise RuntimeError(
@@ -241,6 +338,12 @@ class Result:
         if self._report_results is None:
             self._report_results = result.CheckerResults(version=DEFAULT_REPORT_VERSION)
 
+        for existing_bundle in self._report_results.checker_bundles:
+            if existing_bundle.name == name:
+                raise RuntimeError(
+                    f"Checker bundle with name {name} is already registered to results"
+                )
+
         self._report_results.checker_bundles.append(bundle)
 
     def register_checker(
@@ -256,6 +359,12 @@ class Result:
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        for existing_checker in bundle.checkers:
+            if existing_checker.checker_id == checker_id:
+                raise RuntimeError(
+                    f"Checker with id {checker_id} is already registered to bundle {bundle.name}"
+                )
 
         bundle.checkers.append(checker)
 
@@ -295,6 +404,35 @@ class Result:
             )
 
         return rule.rule_uid
+
+    def register_rule_by_uid(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        rule_uid: str,
+    ) -> None:
+        """
+        Rule uid will be registered to checker.
+
+        Rule uid needs to follow the proper schema, more information at:
+        https://github.com/asam-ev/qc-framework/blob/main/doc/manual/rule_uid_schema.md
+        """
+
+        splitted_uid = rule_uid.split(":")
+
+        if len(splitted_uid) < 4:
+            raise RuntimeError(
+                f"Invalid rule uid: {rule_uid}. The uid should be composed by 4 entities separated by ':'."
+            )
+
+        self.register_rule(
+            checker_bundle_name=checker_bundle_name,
+            checker_id=checker_id,
+            emanating_entity=splitted_uid[0],
+            standard=splitted_uid[1],
+            definition_setting=splitted_uid[2],
+            rule_full_name=splitted_uid[3],
+        )
 
     def register_issue(
         self,
@@ -614,3 +752,104 @@ class Result:
                     return False
 
         return True
+
+    def add_param_to_checker_bundle(
+        self, checker_bundle_name: str, name: str, value: Union[str, int, float]
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        for exiting_param in bundle.params:
+            if exiting_param.name == name:
+                raise RuntimeError(
+                    f"Param with name {name} is already registered to bundle {checker_bundle_name}"
+                )
+        bundle.params.append(common.ParamType(name=name, value=value))
+
+    def get_param_from_checker_bundle(
+        self, checker_bundle_name: str, param_name: str
+    ) -> Union[int, str, float, None]:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+
+        if len(bundle.params) == 0:
+            return None
+
+        param = next(
+            (param for param in bundle.params if param_name == param.name),
+            None,
+        )
+
+        if param is None:
+            return None
+
+        return param.value
+
+    def add_param_to_checker(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        name: str,
+        value: Union[str, int, float],
+    ) -> None:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        for exiting_param in checker.params:
+            if exiting_param.name == name:
+                raise RuntimeError(
+                    f"Param with name {name} is already registered to checker {checker_id} on bundle {checker_bundle_name}"
+                )
+        checker.params.append(common.ParamType(name=name, value=value))
+
+    def get_param_from_checker(
+        self, checker_bundle_name: str, checker_id: str, param_name: str
+    ) -> Union[int, str, float, None]:
+        bundle = self._get_checker_bundle(checker_bundle_name)
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+
+        if len(checker.params) == 0:
+            return None
+
+        param = next(
+            (param for param in checker.params if param_name == param.name),
+            None,
+        )
+
+        if param is None:
+            return None
+
+        return param.value
+
+    def copy_param_from_config(self, config: Configuration) -> None:
+        # Inject global Configuration parameters to Result checker bundles
+        for param_name, param_value in config.get_all_global_config_param().items():
+            result_checker_bundles = self._report_results.checker_bundles
+            for bundle in result_checker_bundles:
+                bundle.params.append(
+                    common.ParamType(name=param_name, value=param_value)
+                )
+
+        # Copy Configuration checker bundle and checker parameters to Result
+        for config_bundle in config.get_all_checker_bundles():
+            result_bundle = self._get_checker_bundle_without_error(
+                checker_bundle_name=config_bundle.application
+            )
+
+            if result_bundle is None:
+                continue
+
+            for param in config_bundle.params:
+                result_bundle.params.append(
+                    common.ParamType(name=param.name, value=param.value)
+                )
+
+            for config_checker in config_bundle.checkers:
+                result_checker = self._get_checker_without_error(
+                    bundle=result_bundle,
+                    checker_id=config_checker.checker_id,
+                )
+
+                if result_checker is None:
+                    continue
+
+                for param in config_checker.params:
+                    result_checker.params.append(
+                        common.ParamType(name=param.name, value=param.value)
+                    )

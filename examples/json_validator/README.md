@@ -35,8 +35,7 @@ options:
 - No issues found
 
 ```
-$ python python json_validator.py \
-    -c config/valid.xml
+$ python json_validator.py -c config/valid.xml
 2024-08-05 10:38:07,978 - Initializing checks
 2024-08-05 10:38:07,979 - JsonFile = data/valid.json
 2024-08-05 10:38:07,979 - resultFile = json_bundle_report.xqar
@@ -48,8 +47,7 @@ $ python python json_validator.py \
 - Issues found on file
 
 ```
-$ python python json_validator.py \
-    -c config/invalid.xml
+$ python json_validator.py -c config/invalid.xml
 2024-08-05 10:38:11,946 - Initializing checks
 2024-08-05 10:38:11,946 - JsonFile = data/invalid.json
 2024-08-05 10:38:11,946 - resultFile = json_bundle_report.xqar

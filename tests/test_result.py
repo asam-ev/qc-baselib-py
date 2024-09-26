@@ -3,7 +3,7 @@ import pytest
 from lxml import etree
 from pydantic_core import ValidationError
 from qc_baselib.models import config, result
-from qc_baselib import Result, IssueSeverity, StatusType
+from qc_baselib import Result, IssueSeverity, StatusType, Configuration
 
 
 DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
@@ -48,14 +48,14 @@ def test_result_write() -> None:
         build_date="2024-05-31",
         description="Example checker bundle",
         version="0.0.1",
-        summary="Tested example checkers",
+        summary="Tested example checkers.",
     )
 
     result.register_checker(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
         description="Test checker",
-        summary="Executed evaluation",
+        summary="Executed evaluation.",
     )
 
     rule_uid = result.register_rule(
@@ -113,7 +113,16 @@ def test_result_write() -> None:
         status=StatusType.COMPLETED,
     )
 
-    result.write_to_file(TEST_REPORT_OUTPUT_PATH)
+    result.add_checker_bundle_summary(
+        checker_bundle_name="TestBundle", content="Extra summary for checker bundle."
+    )
+    result.add_checker_summary(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        content="Extra summary for checker.",
+    )
+
+    result.write_to_file(TEST_REPORT_OUTPUT_PATH, generate_summary=True)
 
     example_xml_text = ""
     output_xml_text = ""
@@ -684,14 +693,14 @@ def test_has_issue_in_rules() -> None:
 
     result_report.register_checker(
         checker_bundle_name="TestBundle",
-        checker_id="TestChecker",
+        checker_id="TestChecker2",
         description="Test checker",
         summary="Executed evaluation",
     )
 
     rule_uid_2 = result_report.register_rule(
         checker_bundle_name="TestBundle",
-        checker_id="TestChecker",
+        checker_id="TestChecker2",
         emanating_entity="test.com",
         standard="qc",
         definition_setting="1.0.0",
@@ -700,7 +709,7 @@ def test_has_issue_in_rules() -> None:
 
     result_report.register_issue(
         checker_bundle_name="TestBundle",
-        checker_id="TestChecker",
+        checker_id="TestChecker2",
         description="Issue found at odr",
         level=IssueSeverity.INFORMATION,
         rule_uid=rule_uid_2,
@@ -1034,3 +1043,463 @@ def test_all_checkers_completed() -> None:
     )
 
     assert result_report.all_checkers_completed() == True
+
+
+def test_add_get_param_to_checker_bundle() -> None:
+    result = Result()
+    result.register_checker_bundle(
+        build_date="",
+        description="",
+        name="TestCheckerBundle",
+        version="",
+    )
+
+    result.add_param_to_checker_bundle(
+        checker_bundle_name="TestCheckerBundle", name="TestStrParam", value="TestStr"
+    )
+    result.add_param_to_checker_bundle(
+        checker_bundle_name="TestCheckerBundle", name="TestIntParam", value=1
+    )
+    result.add_param_to_checker_bundle(
+        checker_bundle_name="TestCheckerBundle", name="TestFloatParam", value=2.0
+    )
+
+    assert (
+        result.get_param_from_checker_bundle(
+            checker_bundle_name="TestCheckerBundle", param_name="TestStrParam"
+        )
+        == "TestStr"
+    )
+    assert (
+        result.get_param_from_checker_bundle(
+            checker_bundle_name="TestCheckerBundle", param_name="TestIntParam"
+        )
+        == 1
+    )
+    assert (
+        result.get_param_from_checker_bundle(
+            checker_bundle_name="TestCheckerBundle", param_name="TestFloatParam"
+        )
+        == 2.0
+    )
+
+
+def test_add_get_param_to_checker() -> None:
+    result = Result()
+    result.register_checker_bundle(
+        build_date="",
+        description="",
+        name="TestCheckerBundle",
+        version="",
+    )
+    result.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        description="",
+    )
+
+    result.add_param_to_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="TestStrParam",
+        value="TestStr",
+    )
+    result.add_param_to_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="TestIntParam",
+        value=1,
+    )
+    result.add_param_to_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="TestFloatParam",
+        value=2.0,
+    )
+
+    assert (
+        result.get_param_from_checker(
+            checker_bundle_name="TestCheckerBundle",
+            checker_id="TestChecker",
+            param_name="TestStrParam",
+        )
+        == "TestStr"
+    )
+    assert (
+        result.get_param_from_checker(
+            checker_bundle_name="TestCheckerBundle",
+            checker_id="TestChecker",
+            param_name="TestIntParam",
+        )
+        == 1
+    )
+    assert (
+        result.get_param_from_checker(
+            checker_bundle_name="TestCheckerBundle",
+            checker_id="TestChecker",
+            param_name="TestFloatParam",
+        )
+        == 2.0
+    )
+
+
+def test_result_config_param_copy() -> None:
+    config = Configuration()
+    config.register_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        min_level=IssueSeverity.INFORMATION,
+        max_level=IssueSeverity.ERROR,
+    )
+
+    config.set_config_param(
+        name="testConfigParamStr",
+        value="testValue",
+    )
+    config.set_config_param(
+        name="testConfigParamInt",
+        value=1,
+    )
+    config.set_config_param(
+        name="testConfigParamFloat",
+        value=2.0,
+    )
+
+    config.set_checker_bundle_param(
+        checker_bundle_name="TestCheckerBundle",
+        name="testConfigParamStr",
+        value="testValue",
+    )
+    config.set_checker_bundle_param(
+        checker_bundle_name="TestCheckerBundle",
+        name="testConfigParamInt",
+        value=1,
+    )
+    config.set_checker_bundle_param(
+        checker_bundle_name="TestCheckerBundle",
+        name="testConfigParamFloat",
+        value=2.0,
+    )
+
+    config.set_checker_param(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="testConfigParamStr",
+        value="testValue",
+    )
+    config.set_checker_param(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="testConfigParamInt",
+        value=1,
+    )
+    config.set_checker_param(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        name="testConfigParamFloat",
+        value=2.0,
+    )
+
+    config.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="FirstNonExistingTestChecker",
+        min_level=IssueSeverity.INFORMATION,
+        max_level=IssueSeverity.ERROR,
+    )
+
+    config.register_checker_bundle(checker_bundle_name="NonExistingTestCheckerBundle")
+    config.register_checker(
+        checker_bundle_name="NonExistingTestCheckerBundle",
+        checker_id="SecondNonExistingTestChecker",
+        min_level=IssueSeverity.INFORMATION,
+        max_level=IssueSeverity.ERROR,
+    )
+
+    result = Result()
+    result.register_checker_bundle(
+        build_date="",
+        description="",
+        name="TestCheckerBundle",
+        version="",
+    )
+    result.register_checker(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+        description="",
+    )
+
+    result.copy_param_from_config(config=config)
+
+    test_bundle = result.get_checker_bundle_result(
+        checker_bundle_name="TestCheckerBundle"
+    )
+    test_checker = result.get_checker_result(
+        checker_bundle_name="TestCheckerBundle",
+        checker_id="TestChecker",
+    )
+    config_bundle = config._get_checker_bundle(checker_bundle_name="TestCheckerBundle")
+    config_checker = next(
+        (
+            checker
+            for checker in config_bundle.checkers
+            if checker.checker_id == "TestChecker"
+        ),
+        None,
+    )
+
+    assert len(test_bundle.params) == len(config_bundle.params) + len(
+        config._configuration.params
+    )
+    assert len(test_checker.params) == len(config_checker.params)
+
+    assert test_bundle.params[0].name == config_bundle.params[0].name
+    assert test_bundle.params[0].value == config_bundle.params[0].value
+
+    assert test_checker.params[0].name == config_checker.params[0].name
+    assert test_checker.params[0].value == config_checker.params[0].value
+
+
+def test_registering_checker_bundle_twice() -> None:
+    with pytest.raises(RuntimeError) as exc_info:
+        result_report = Result()
+        bundle_name = "TestBundle"
+
+        result_report.register_checker_bundle(
+            name=bundle_name,
+            build_date="2024-05-31",
+            description="Example checker bundle",
+            version="0.0.1",
+            summary="Tested example checkers",
+        )
+
+        result_report.register_checker_bundle(
+            name=bundle_name,
+            build_date="2024-05-31",
+            description="Example checker bundle",
+            version="0.0.1",
+            summary="Tested example checkers",
+        )
+
+    assert (
+        f"Checker bundle with name {bundle_name} is already registered to results"
+        in str(exc_info.value)
+    )
+
+
+def test_registering_checker_twice() -> None:
+    with pytest.raises(RuntimeError) as exc_info:
+        result_report = Result()
+        bundle_name = "TestBundle"
+        checker_id = "TestChecker"
+
+        result_report.register_checker_bundle(
+            name=bundle_name,
+            build_date="2024-05-31",
+            description="Example checker bundle",
+            version="0.0.1",
+            summary="Tested example checkers",
+        )
+
+        result_report.register_checker(
+            checker_bundle_name=bundle_name,
+            checker_id=checker_id,
+            description="Test checker",
+            summary="Executed evaluation",
+        )
+        result_report.register_checker(
+            checker_bundle_name=bundle_name,
+            checker_id=checker_id,
+            description="Test checker",
+            summary="Executed evaluation",
+        )
+
+    assert (
+        f"Checker with id {checker_id} is already registered to bundle {bundle_name}"
+        in str(exc_info.value)
+    )
+
+
+def test_registering_checker_bundle_param_twice() -> None:
+    with pytest.raises(RuntimeError) as exc_info:
+        result_report = Result()
+        bundle_name = "TestBundle"
+        param_name = "TestFloatParam"
+
+        result_report.register_checker_bundle(
+            name=bundle_name,
+            build_date="2024-05-31",
+            description="Example checker bundle",
+            version="0.0.1",
+            summary="Tested example checkers",
+        )
+
+        result_report.add_param_to_checker_bundle(
+            checker_bundle_name=bundle_name,
+            name=param_name,
+            value=2.0,
+        )
+        result_report.add_param_to_checker_bundle(
+            checker_bundle_name=bundle_name,
+            name=param_name,
+            value=2.0,
+        )
+
+    assert (
+        f"Param with name {param_name} is already registered to bundle {bundle_name}"
+        in str(exc_info.value)
+    )
+
+
+def test_registering_checker_param_twice() -> None:
+    with pytest.raises(RuntimeError) as exc_info:
+        result_report = Result()
+        bundle_name = "TestBundle"
+        checker_id = "TestChecker"
+        param_name = "TestFloatParam"
+
+        result_report.register_checker_bundle(
+            name=bundle_name,
+            build_date="2024-05-31",
+            description="Example checker bundle",
+            version="0.0.1",
+            summary="Tested example checkers",
+        )
+
+        result_report.register_checker(
+            checker_bundle_name=bundle_name,
+            checker_id=checker_id,
+            description="Test checker",
+            summary="Executed evaluation",
+        )
+
+        result_report.add_param_to_checker(
+            checker_bundle_name=bundle_name,
+            checker_id=checker_id,
+            name=param_name,
+            value=2.0,
+        )
+        result_report.add_param_to_checker(
+            checker_bundle_name=bundle_name,
+            checker_id=checker_id,
+            name=param_name,
+            value=2.0,
+        )
+
+    assert (
+        f"Param with name {param_name} is already registered to checker {checker_id} on bundle {bundle_name}"
+        in str(exc_info.value)
+    )
+
+
+def test_result_register_rule_by_uid() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers.",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation.",
+    )
+
+    result.register_rule_by_uid(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        rule_uid="test.com:qc:1.0.0:qwerty.qwerty",
+    )
+
+    bundle = result._get_checker_bundle(checker_bundle_name="TestBundle")
+
+    checker = result._get_checker(bundle=bundle, checker_id="TestChecker")
+
+    rules = checker.addressed_rule
+
+    assert len(rules) == 1
+    assert rules[0].rule_uid == "test.com:qc:1.0.0:qwerty.qwerty"
+
+
+def test_create_rule_id_validation() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation",
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"Invalid rule uid: .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com:qc:1.0.0",
+        )
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"Invalid rule uid: .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nemanating_entity\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid=":qc:1.0.0:qwerty.qwerty",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nstandard\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com::1.0.0:qwerty.qwerty",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\ndefinition_setting\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com:qc::qwerty.qwerty",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nrule_full_name\n.* String should match pattern .*",
+    ) as exc_info:
+        result.register_rule_by_uid(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            rule_uid="test.com:qc:1.0.0:",
+        )
