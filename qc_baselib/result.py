@@ -249,7 +249,9 @@ class Result:
         else:
             checker.summary += f" {content}"
 
-    def _get_checker_bundle(self, checker_bundle_name: str) -> result.CheckerBundleType:
+    def _get_checker_bundle_without_error(
+        self, checker_bundle_name: str
+    ) -> Union[None, result.CheckerBundleType]:
         if self._report_results is None:
             raise RuntimeError(
                 "Report not initialized. Initialize the report first by registering the version or a checker bundle."
@@ -264,6 +266,11 @@ class Result:
             None,
         )
 
+        return bundle
+
+    def _get_checker_bundle(self, checker_bundle_name: str) -> result.CheckerBundleType:
+        bundle = self._get_checker_bundle_without_error(checker_bundle_name)
+
         if bundle is None:
             raise RuntimeError(
                 f"Bundle not found. The specified {checker_bundle_name} does not exist on the report. Register the bundle first."
@@ -271,9 +278,9 @@ class Result:
 
         return bundle
 
-    def _get_checker(
+    def _get_checker_without_error(
         self, bundle: result.CheckerBundleType, checker_id: str
-    ) -> result.CheckerType:
+    ) -> Union[None, result.CheckerType]:
         checker = next(
             (
                 checker
@@ -282,6 +289,13 @@ class Result:
             ),
             None,
         )
+
+        return checker
+
+    def _get_checker(
+        self, bundle: result.CheckerBundleType, checker_id: str
+    ) -> result.CheckerType:
+        checker = self._get_checker_without_error(bundle, checker_id)
 
         if checker is None:
             raise RuntimeError(
@@ -814,7 +828,7 @@ class Result:
 
         # Copy Configuration checker bundle and checker parameters to Result
         for config_bundle in config.get_all_checker_bundles():
-            result_bundle = self._get_checker_bundle(
+            result_bundle = self._get_checker_bundle_without_error(
                 checker_bundle_name=config_bundle.application
             )
 
@@ -827,7 +841,7 @@ class Result:
                 )
 
             for config_checker in config_bundle.checkers:
-                result_checker = self._get_checker(
+                result_checker = self._get_checker_without_error(
                     bundle=result_bundle,
                     checker_id=config_checker.checker_id,
                 )
