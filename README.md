@@ -7,6 +7,8 @@ interacting with the configuration files and the results files from the
 ASAM Quality Checker Framework. With it, users can create their own
 Checker Bundles or Report Modules in Python.
 
+**Disclaimer**: The current version is the release candidate `1.0.0rc1`. The first official release is expected to be in November.
+
 The library features the main interfaces needed to implement a module:
 
 - Configuration: for reading and writing QC Framework [configuration files](https://github.com/asam-ev/qc-framework/blob/main/doc/manual/file_formats.md#configuration-file-xml).
@@ -108,7 +110,7 @@ content:
 </Config>
 ```
 
-For more information regarding the configuration XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/config_format.xsd)
+For more information regarding the configuration XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/main/doc/schema/config_format.xsd)
 
 ### Reading checker bundle config from file
 
@@ -242,7 +244,7 @@ content:
 
 ```
 
-For more information regarding the result XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_result_format.xsd)
+For more information regarding the result XSD schema you can check [here](https://github.com/asam-ev/qc-framework/blob/main/doc/schema/xqar_result_format.xsd)
 
 ### Reading a result from checker bundle execution
 
