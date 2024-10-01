@@ -11,7 +11,7 @@ from .common import ParamType, IssueSeverity
 
 # Configuration models
 # Original XSD file:
-# > https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/config_format.xsd
+# > https://github.com/asam-ev/qc-framework/blob/main/doc/schema/config_format.xsd
 
 
 class CheckerType(BaseXmlModel):
