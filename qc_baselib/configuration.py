@@ -39,7 +39,7 @@ class Configuration:
     ```
 
     For more information regarding the configuration XSD schema you can check
-    [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/config_format.xsd).
+    [here](https://github.com/asam-ev/qc-framework/blob/main/doc/schema/config_format.xsd).
 
     """
 
