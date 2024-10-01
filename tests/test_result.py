@@ -1517,6 +1517,4 @@ def test_build_date() -> None:
 
     checker_bundle_result = result.get_checker_bundle_result("TestBundle")
 
-    print(checker_bundle_result.build_date)
-
     assert checker_bundle_result.build_date == datetime.now().strftime("%Y-%m-%d")
