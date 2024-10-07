@@ -7,7 +7,7 @@ import logging
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Union, List, Set
+from typing import Union, List, Set, Optional
 from lxml import etree
 from datetime import datetime
 
@@ -76,7 +76,7 @@ class Result:
     def __init__(
         self,
     ):
-        self._report_results: Union[None, result.CheckerResults] = None
+        self._report_results: Optional[result.CheckerResults] = None
         self._id_manager = IDManager()
 
     def load_from_file(self, xml_file_path: str, override: bool = False) -> None:
@@ -251,7 +251,7 @@ class Result:
 
     def _get_checker_bundle_without_error(
         self, checker_bundle_name: str
-    ) -> Union[None, result.CheckerBundleType]:
+    ) -> Optional[result.CheckerBundleType]:
         if self._report_results is None:
             raise RuntimeError(
                 "Report not initialized. Initialize the report first by registering the version or a checker bundle."
@@ -280,7 +280,7 @@ class Result:
 
     def _get_checker_without_error(
         self, bundle: result.CheckerBundleType, checker_id: str
-    ) -> Union[None, result.CheckerType]:
+    ) -> Optional[result.CheckerType]:
         checker = next(
             (
                 checker
@@ -324,7 +324,7 @@ class Result:
         description: str,
         name: str,
         version: str,
-        build_date: Union[None, str] = None,
+        build_date: Optional[str] = None,
         summary: str = "",
     ) -> None:
         bundle = result.CheckerBundleType(
@@ -738,7 +738,7 @@ class Result:
 
         return result
 
-    def get_checker_status(self, checker_id: str) -> Union[None, StatusType]:
+    def get_checker_status(self, checker_id: str) -> Optional[StatusType]:
         """
         Return None if the checker is not found.
         """

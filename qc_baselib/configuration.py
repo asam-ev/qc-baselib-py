@@ -3,7 +3,7 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Optional
 from .models import config, common, IssueSeverity
 
 
@@ -46,7 +46,7 @@ class Configuration:
     def __init__(
         self,
     ):
-        self._configuration: Union[None, config.Config] = None
+        self._configuration: Optional[config.Config] = None
 
     def load_from_file(self, xml_file_path: str, override: bool = False) -> None:
         if self._configuration is not None and not override:
@@ -74,7 +74,7 @@ class Configuration:
 
     def _get_checker_bundle(
         self, checker_bundle_name: str
-    ) -> Union[config.CheckerBundleType, None]:
+    ) -> Optional[config.CheckerBundleType]:
         if len(self._configuration.checker_bundles) == 0:
             return None
 
