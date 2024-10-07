@@ -7,8 +7,9 @@ import logging
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Union, List, Set
+from typing import Union, List, Set, Optional
 from lxml import etree
+from datetime import datetime
 
 from qc_baselib import Configuration
 from .models import IssueSeverity, StatusType, result, common
@@ -48,7 +49,6 @@ class Result:
 
     result.register_checker_bundle(
         name="TestBundle",
-        build_date="2024-05-31",
         description="Example checker bundle",
         version="0.0.1",
     )
@@ -65,18 +65,18 @@ class Result:
 
     result.load_from_file(RESULT_FILE_PATH)
 
-    version = result.get_version()
+    version = result.get_result_version()
     ```
 
     For more information regarding the results report XSD schema you can check
-    [here](https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_report_format.xsd)
+    [here](https://github.com/asam-ev/qc-framework/blob/main/doc/schema/xqar_report_format.xsd)
 
     """
 
     def __init__(
         self,
     ):
-        self._report_results: Union[None, result.CheckerResults] = None
+        self._report_results: Optional[result.CheckerResults] = None
         self._id_manager = IDManager()
 
     def load_from_file(self, xml_file_path: str, override: bool = False) -> None:
@@ -251,7 +251,7 @@ class Result:
 
     def _get_checker_bundle_without_error(
         self, checker_bundle_name: str
-    ) -> Union[None, result.CheckerBundleType]:
+    ) -> Optional[result.CheckerBundleType]:
         if self._report_results is None:
             raise RuntimeError(
                 "Report not initialized. Initialize the report first by registering the version or a checker bundle."
@@ -280,7 +280,7 @@ class Result:
 
     def _get_checker_without_error(
         self, bundle: result.CheckerBundleType, checker_id: str
-    ) -> Union[None, result.CheckerType]:
+    ) -> Optional[result.CheckerType]:
         checker = next(
             (
                 checker
@@ -321,14 +321,18 @@ class Result:
 
     def register_checker_bundle(
         self,
-        build_date: str,
         description: str,
         name: str,
         version: str,
+        build_date: Optional[str] = None,
         summary: str = "",
     ) -> None:
         bundle = result.CheckerBundleType(
-            build_date=build_date,
+            build_date=(
+                build_date
+                if build_date is not None
+                else datetime.today().strftime("%Y-%m-%d")
+            ),
             description=description,
             name=name,
             version=version,
@@ -734,7 +738,7 @@ class Result:
 
         return result
 
-    def get_checker_status(self, checker_id: str) -> Union[None, StatusType]:
+    def get_checker_status(self, checker_id: str) -> Optional[StatusType]:
         """
         Return None if the checker is not found.
         """

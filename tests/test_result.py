@@ -2,7 +2,8 @@ import os
 import pytest
 from lxml import etree
 from pydantic_core import ValidationError
-from qc_baselib.models import config, result
+from datetime import datetime
+from qc_baselib.models import result
 from qc_baselib import Result, IssueSeverity, StatusType, Configuration
 
 
@@ -1503,3 +1504,17 @@ def test_create_rule_id_validation() -> None:
             checker_id="TestChecker",
             rule_uid="test.com:qc:1.0.0:",
         )
+
+
+def test_build_date() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        description="Example checker bundle",
+        version="0.0.1",
+    )
+
+    checker_bundle_result = result.get_checker_bundle_result("TestBundle")
+
+    assert checker_bundle_result.build_date == datetime.now().strftime("%Y-%m-%d")

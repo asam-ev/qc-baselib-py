@@ -15,7 +15,7 @@ from .common import ParamType, IssueSeverity
 
 # Report models
 # Original XSD file:
-# > https://github.com/asam-ev/qc-framework/blob/develop/doc/schema/xqar_report_format.xsd
+# > https://github.com/asam-ev/qc-framework/blob/main/doc/schema/xqar_report_format.xsd
 
 
 class XMLLocationType(BaseXmlModel):
