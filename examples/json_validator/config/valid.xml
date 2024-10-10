@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Config>
 
-    <Param name="JsonFile" value="data/valid.json" />
+    <Param name="InputFile" value="data/valid.json" />
 
     <CheckerBundle application="jsonBundle">
         <Param name="resultFile" value="json_bundle_report.xqar" />

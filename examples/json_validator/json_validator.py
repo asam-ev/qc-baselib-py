@@ -40,19 +40,17 @@ def main():
     # Create result object
     result = Result()
 
-    json_file = config.get_config_param("JsonFile")
-    result_file = config.get_checker_bundle_param("jsonBundle", "resultFile")
+    json_file = config.get_config_param("InputFile")
+    result_file = config.get_checker_bundle_param(BUNDLE_NAME, "resultFile")
 
-    logging.info(f"JsonFile = {json_file}")
+    logging.info(f"InputFile = {json_file}")
     logging.info(f"resultFile = {result_file}")
 
     # Register checker bundle
     result.register_checker_bundle(
         name=BUNDLE_NAME,
-        build_date=datetime.today().strftime("%Y-%m-%d"),
         description="JSON checker bundle",
         version=BUNDLE_VERSION,
-        summary="",
     )
     result.set_result_version(version=BUNDLE_VERSION)
 
@@ -61,7 +59,6 @@ def main():
         checker_bundle_name=BUNDLE_NAME,
         checker_id=CHECKER_ID,
         description="Json validation checker",
-        summary="",
     )
 
     # Register addressed rule
@@ -81,7 +78,7 @@ def main():
         is_valid = is_valid_json(json_file)
 
         if not is_valid:
-            issue_id = result.register_issue(
+            result.register_issue(
                 checker_bundle_name=BUNDLE_NAME,
                 checker_id=CHECKER_ID,
                 description="The input file is not a valid json file.",
