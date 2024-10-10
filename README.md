@@ -18,12 +18,26 @@ The library features the main interfaces needed to implement a module:
 
 ### Installation using pip
 
+**From PyPi**
+
+```bash
+pip install asam-qc-baselib
+```
+
+**From GitHub repository**
+
 ```bash
 pip install asam-qc-baselib@git+https://github.com/asam-ev/qc-baselib-py@main
 ```
 
-**Note**: To install from different sources, you can replace `@main` with
+To install from different sources, you can replace `@main` with
 your desired target. For example, `develop` branch as `@develop`.
+
+**From a local repository**
+
+```bash
+pip install /home/user/qc-baselib-py
+```
 
 ### Installation from source for local development.
 
