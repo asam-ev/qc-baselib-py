@@ -7,8 +7,6 @@ interacting with the configuration files and the results files from the
 ASAM Quality Checker Framework. With it, users can create their own
 Checker Bundles or Report Modules in Python.
 
-**Disclaimer**: The current version is a release candidate. The first official release is expected to be in November.
-
 The library features the main interfaces needed to implement a module:
 
 - Configuration: for reading and writing QC Framework [configuration files](https://github.com/asam-ev/qc-framework/blob/main/doc/manual/file_formats.md#configuration-file-xml).
