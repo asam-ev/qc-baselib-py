@@ -503,14 +503,19 @@ class Result:
     ) -> None:
         xml_locations = []
 
-        if isinstance(lines, int):
-            lines_str = str(lines)
-        elif isinstance(lines, list):
-            lines_str = ", ".join([str(line) for line in lines])
-
         if type(xpath) == str:
+            if isinstance(lines, int):
+                lines_str = str(lines)
+            else:
+                raise ValueError("Lines should be an integer when xpath is a string")
             xml_locations.append(result.XMLLocationType(xpath=xpath, lines=lines_str))
         elif type(xpath) == list:
+            if isinstance(lines, list):
+                lines_str = ", ".join([str(line) for line in lines])
+            else:
+                raise ValueError(
+                    "Lines should be a list of integers when xpath is a list"
+                )
             for path in xpath:
                 xml_locations.append(
                     result.XMLLocationType(xpath=path, lines=lines_str)

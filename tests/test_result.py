@@ -449,6 +449,7 @@ def test_domain_specific_info_add():
         issue_id=issue_id,
         xpath="/foo/test/path",
         description="Location for issue",
+        lines=1,
     )
 
     result.add_domain_specific_info(
