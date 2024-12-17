@@ -499,14 +499,22 @@ class Result:
         issue_id: int,
         xpath: Union[str, List[str]],
         description: str,
+        lines: Union[int, List[int]],
     ) -> None:
         xml_locations = []
 
+        if isinstance(lines, int):
+            lines_str = str(lines)
+        elif isinstance(lines, list):
+            lines_str = ", ".join([str(line) for line in lines])
+
         if type(xpath) == str:
-            xml_locations.append(result.XMLLocationType(xpath=xpath))
+            xml_locations.append(result.XMLLocationType(xpath=xpath, lines=lines_str))
         elif type(xpath) == list:
             for path in xpath:
-                xml_locations.append(result.XMLLocationType(xpath=path))
+                xml_locations.append(
+                    result.XMLLocationType(xpath=path, lines=lines_str)
+                )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
 

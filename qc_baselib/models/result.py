@@ -21,6 +21,7 @@ from .common import ParamType, IssueSeverity
 
 class XMLLocationType(BaseXmlModel):
     xpath: str = attr(name="xpath")
+    lines: str = attr(name="lines")
 
 
 class InertialLocationType(BaseXmlModel):
