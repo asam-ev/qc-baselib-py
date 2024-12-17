@@ -96,6 +96,7 @@ def test_result_write() -> None:
         issue_id=issue_id,
         xpath="/foo/test/path",
         description="Location for issue",
+        lines=5,
     )
     result.add_xml_location(
         checker_bundle_name="TestBundle",
@@ -103,6 +104,7 @@ def test_result_write() -> None:
         issue_id=issue_id,
         xpath=["/foo/test/path", "/bar/test/path"],
         description="Location for issue with list",
+        lines=[1, 2],
     )
     result.add_inertial_location(
         checker_bundle_name="TestBundle",

@@ -8,11 +8,11 @@
           <FileLocation column="0" row="1"/>
         </Locations>
         <Locations description="Location for issue">
-          <XMLLocation xpath="/foo/test/path"/>
+          <XMLLocation xpath="/foo/test/path" lines="5"/>
         </Locations>
         <Locations description="Location for issue with list">
-          <XMLLocation xpath="/foo/test/path"/>
-          <XMLLocation xpath="/bar/test/path"/>
+          <XMLLocation xpath="/foo/test/path" lines="1, 2"/>
+          <XMLLocation xpath="/bar/test/path" lines="1, 2"/>
         </Locations>
         <Locations description="Location for issue">
           <InertialLocation x="1.0" y="2.0" z="3.0"/>
