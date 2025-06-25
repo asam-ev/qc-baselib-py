@@ -717,27 +717,34 @@ class Result:
                     return True
 
         return False
+    
+    def all_checkers_completed_without_issue(self, check_id_set: Union[None, Set[str]] = None) -> bool:
+        if check_id_set is None:
+            for bundle in self._report_results.checker_bundles:
+                for checker in bundle.checkers:
+                    if checker.status != StatusType.COMPLETED or len(checker.issues) > 0:
+                        return False
+            return True
+        else:
+            checker_id_map = dict()
+            for checker_id in check_id_set:
+                checker_id_map[checker_id] = False
 
-    def all_checkers_completed_without_issue(self, check_id_set: Set[str]) -> bool:
-        checker_id_map = dict()
-        for checker_id in check_id_set:
-            checker_id_map[checker_id] = False
+            for bundle in self._report_results.checker_bundles:
+                for checker in bundle.checkers:
+                    if (
+                        checker.checker_id in check_id_set
+                        and checker.status == StatusType.COMPLETED
+                        and len(checker.issues) == 0
+                    ):
+                        checker_id_map[checker.checker_id] = True
 
-        for bundle in self._report_results.checker_bundles:
-            for checker in bundle.checkers:
-                if (
-                    checker.checker_id in check_id_set
-                    and checker.status == StatusType.COMPLETED
-                    and len(checker.issues) == 0
-                ):
-                    checker_id_map[checker.checker_id] = True
+            result = True
 
-        result = True
+            for _, checker_result in checker_id_map.items():
+                result = result and checker_result
 
-        for _, checker_result in checker_id_map.items():
-            result = result and checker_result
-
-        return result
+            return result
 
     def get_checker_status(self, checker_id: str) -> Optional[StatusType]:
         """
