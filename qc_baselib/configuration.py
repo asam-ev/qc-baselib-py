@@ -228,18 +228,24 @@ class Configuration:
             bundle.checkers.append(check)
 
     def set_config_param(self, name: str, value: Union[int, float, str]) -> None:
-        param = common.ParamType(name=name, value=value)
-
         if self._configuration is None:
-            self._configuration = config.Config(params=[param])
+            self._configuration = config.Config(
+                params=[common.ParamType(name=name, value=value)]
+            )
         else:
-            self._configuration.params.append(param)
+            param = next(
+                (param for param in self._configuration.params if name == param.name),
+                None,
+            )
+            if param is None:
+                param = common.ParamType(name=name, value=value)
+                self._configuration.params.append(param)
+            else:
+                param.value = value
 
     def set_checker_bundle_param(
         self, checker_bundle_name: str, name: str, value: Union[int, float, str]
     ) -> None:
-        param = common.ParamType(name=name, value=value)
-
         if self._configuration is None:
             raise RuntimeError(
                 "Adding param to empty configuration. Initialize the config registering first an initial element."
@@ -258,7 +264,12 @@ class Configuration:
                 raise RuntimeError(
                     f"Adding param to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
                 )
-            bundle.params.append(param)
+            param = next((param for param in bundle.params if name == param.name), None)
+            if param is None:
+                param = common.ParamType(name=name, value=value)
+                bundle.params.append(param)
+            else:
+                param.value = value
 
     def set_checker_param(
         self,
@@ -267,8 +278,6 @@ class Configuration:
         name: str,
         value: Union[str, int, float],
     ) -> None:
-        param = common.ParamType(name=name, value=value)
-
         if self._configuration is None:
             raise RuntimeError(
                 "Adding param to empty configuration. Initialize the config registering first an initial element."
@@ -296,4 +305,10 @@ class Configuration:
                 raise RuntimeError(
                     f"Adding param to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
                 )
-            check.params.append(param)
+
+            param = next((param for param in check.params if name == param.name), None)
+            if param is None:
+                param = common.ParamType(name=name, value=value)
+                check.params.append(param)
+            else:
+                param.value = value
