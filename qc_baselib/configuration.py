@@ -197,7 +197,11 @@ class Configuration:
             )
 
         else:
-            self._configuration.checker_bundles.append(checker_bundle)
+            if (
+                self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+                is None
+            ):
+                self._configuration.checker_bundles.append(checker_bundle)
 
     def register_checker(
         self,
@@ -225,7 +229,15 @@ class Configuration:
                 raise RuntimeError(
                     f"Adding check to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
                 )
-            bundle.checkers.append(check)
+            check = next(
+                (check for check in bundle.checkers if check.checker_id == checker_id),
+                None,
+            )
+            if check is None:
+                bundle.checkers.append(check)
+            else:
+                check.min_level = min_level
+                check.max_level = max_level
 
     def set_config_param(self, name: str, value: Union[int, float, str]) -> None:
         if self._configuration is None:
