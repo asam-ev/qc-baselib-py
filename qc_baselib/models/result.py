@@ -82,14 +82,14 @@ class RuleType(BaseXmlModel):
     rule_full_name: str = attr(
         name="rule_full_name",
         default="",
-        pattern=r"^((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
+        pattern=r"^(((\p{L}[\w_]*)\.)*)(\p{L}[\w_]*)$",
         exclude=True,
     )
 
     rule_uid: str = attr(
         name="ruleUID",
         default="",
-        pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
+        pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):(((\p{L}[\w_]*)\.)*)(\p{L}[\w_]*)$",
     )
 
     @model_validator(mode="after")
@@ -172,7 +172,7 @@ class IssueType(
     rule_uid: str = attr(
         name="ruleUID",
         default="",
-        pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):((([a-z][\w_]*)\.)*)([a-z][\w_]*)$",
+        pattern=r"^((\w+(\.\w+)+)):(([a-z]+)):(([0-9]+(\.[0-9]+)+)):(((\p{L}[\w_]*)\.)*)(\p{L}[\w_]*)$",
     )
     # Raw is defined here to enable parsing of "any" XML tag inside the domain
     # specific information. It is linked to the DomainSpecificInfoType model
