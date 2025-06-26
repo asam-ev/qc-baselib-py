@@ -717,34 +717,29 @@ class Result:
                     return True
 
         return False
-    
-    def all_checkers_completed_without_issue(self, check_id_set: Union[None, Set[str]] = None) -> bool:
-        if check_id_set is None:
-            for bundle in self._report_results.checker_bundles:
-                for checker in bundle.checkers:
-                    if checker.status != StatusType.COMPLETED or len(checker.issues) > 0:
-                        return False
-            return True
-        else:
-            checker_id_map = dict()
-            for checker_id in check_id_set:
-                checker_id_map[checker_id] = False
 
-            for bundle in self._report_results.checker_bundles:
-                for checker in bundle.checkers:
-                    if (
-                        checker.checker_id in check_id_set
-                        and checker.status == StatusType.COMPLETED
-                        and len(checker.issues) == 0
-                    ):
-                        checker_id_map[checker.checker_id] = True
+    def all_checkers_completed_without_issue(
+        self, check_id_set: Union[None, Set[str]] = None
+    ) -> bool:
 
-            result = True
+        checker_id_result_map = {
+            checker.checker_id: (
+                checker.status == StatusType.COMPLETED and len(checker.issues) == 0
+            )
+            for bundle in self._report_results.checker_bundles
+            for checker in bundle.checkers
+        }
 
-            for _, checker_result in checker_id_map.items():
-                result = result and checker_result
-
-            return result
+        return not any(
+            [
+                checker_id_result_map.get(id, False) == False
+                for id in (
+                    check_id_set
+                    if check_id_set is not None
+                    else checker_id_result_map.keys()
+                )
+            ]
+        )
 
     def get_checker_status(self, checker_id: str) -> Optional[StatusType]:
         """
