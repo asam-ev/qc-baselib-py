@@ -65,15 +65,44 @@ def test_register_checker_bundle() -> None:
     config = Configuration()
 
     config.register_checker_bundle("TestCheckerBundle")
+    assert config._get_checker_bundle("TestCheckerBundle") is not None
+    assert len(config._configuration.checker_bundles) == 1
+    config.register_checker_bundle("TestCheckerBundle")
+    assert config._get_checker_bundle("TestCheckerBundle") is not None
+    assert len(config._configuration.checker_bundles) == 1
 
 
 def test_register_checker_to_bundle() -> None:
     config = Configuration()
 
     config.register_checker_bundle("TestCheckerBundle")
+
+    def get_checker(checker_id: str) -> result.CheckerType | None:
+        bundle = config._get_checker_bundle("TestCheckerBundle")
+        if bundle is None:
+            return None
+        else:
+            if bundle.checkers is None:
+                return None
+            else:
+                for check in bundle.checkers:
+                    if check.checker_id == checker_id:
+                        return check
+        return None
+
+    assert get_checker("TestChecker") is None
     config.register_checker(
         "TestCheckerBundle", "TestChecker", min_level=1, max_level=3
     )
+    assert get_checker("TestChecker") is not None
+    assert len(config._get_checker_bundle("TestCheckerBundle").checkers) == 1
+    assert get_checker("TestChecker").max_level == 3
+    config.register_checker(
+        "TestCheckerBundle", "TestChecker", min_level=1, max_level=4
+    )
+    assert get_checker("TestChecker") is not None
+    assert len(config._get_checker_bundle("TestCheckerBundle").checkers) == 1
+    assert get_checker("TestChecker").max_level == 4
 
 
 def test_set_checker_bundle_param() -> None:
