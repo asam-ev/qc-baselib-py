@@ -7,6 +7,9 @@
         <Locations description="Location for issue">
           <FileLocation column="0" row="1"/>
         </Locations>
+        <Locations description="Location for issue with offset">
+          <FileLocation offset="6502"/>
+        </Locations>
         <Locations description="Location for issue">
           <XMLLocation xpath="/foo/test/path"/>
         </Locations>
@@ -16,6 +19,12 @@
         </Locations>
         <Locations description="Location for issue">
           <InertialLocation x="1.0" y="2.0" z="3.0"/>
+        </Locations>
+        <Locations description="Location for issue">
+          <TimeLocation time="1.0"/>
+        </Locations>
+        <Locations description="Location for issue">
+          <MessageLocation channel="TestChannel" index="42" field="SensorView.host_vehicle_id" time="1.0"/>
         </Locations>
       </Issue>
     </Checker>
