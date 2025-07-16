@@ -24,7 +24,7 @@
           <TimeLocation time="1.0"/>
         </Locations>
         <Locations description="Location for issue">
-          <MessageLocation channel="TestChannel" index="42" field="SensorView.host_vehicle_id" time="1.0"/>
+          <MessageLocation index="42" channel="TestChannel" field="SensorView.host_vehicle_id" time="1.0"/>
         </Locations>
       </Issue>
     </Checker>

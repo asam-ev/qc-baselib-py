@@ -566,14 +566,14 @@ class Result:
         checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
-        channel: Optional[str],
         index: int,
+        channel: Optional[str] = None,
         field: Optional[str] = None,
         time: Optional[float] = None,
         description: str = "",
     ) -> None:
         message_location = result.MessageLocationType(
-            channel=channel, index=index, field=field, time=time
+            index=index, channel=channel, field=field, time=time
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)

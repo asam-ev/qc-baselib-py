@@ -24,8 +24,8 @@ class XMLLocationType(BaseXmlModel):
 
 
 class MessageLocationType(BaseXmlModel):
-    channel: Optional[str] = attr(name="channel", default=None)
     index: int = attr(name="index")
+    channel: Optional[str] = attr(name="channel", default=None)
     field: Optional[str] = attr(name="field", default=None)
     time: Optional[float] = attr(name="time", default=None)
 
