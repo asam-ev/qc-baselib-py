@@ -90,6 +90,15 @@ def test_result_write() -> None:
         column=0,
         description="Location for issue",
     )
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=None,
+        column=None,
+        description="Location for issue with offset",
+        offset=6502,
+    )
     result.add_xml_location(
         checker_bundle_name="TestBundle",
         checker_id="TestChecker",
@@ -111,6 +120,23 @@ def test_result_write() -> None:
         x=1.0,
         y=2.0,
         z=3.0,
+        description="Location for issue",
+    )
+    result.add_time_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        time=1.0,
+        description="Location for issue",
+    )
+    result.add_message_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        index=42,
+        channel="TestChannel",
+        field="SensorView.host_vehicle_id",
+        time=1.0,
         description="Location for issue",
     )
 
@@ -1577,3 +1603,71 @@ def test_build_date() -> None:
     checker_bundle_result = result.get_checker_bundle_result("TestBundle")
 
     assert checker_bundle_result.build_date == datetime.now().strftime("%Y-%m-%d")
+
+
+def test_file_location_validation() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers.",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation.",
+    )
+
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid,
+    )
+
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=1,
+        column=0,
+        description="Location for issue",
+    )
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=None,
+        column=None,
+        description="Location for issue with offset",
+        offset=6502,
+    )
+    with pytest.raises(ValueError) as exc_info:
+        result.add_file_location(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            issue_id=issue_id,
+            row=None,
+            column=None,
+            description="Location for issue with no attributes",
+        )
+
+    assert (
+        "FileLocationType requires at least one of the attributes: column, row, or offset"
+        in str(exc_info.value)
+    )
