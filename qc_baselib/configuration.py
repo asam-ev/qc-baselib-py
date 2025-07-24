@@ -197,7 +197,11 @@ class Configuration:
             )
 
         else:
-            self._configuration.checker_bundles.append(checker_bundle)
+            if (
+                self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+                is None
+            ):
+                self._configuration.checker_bundles.append(checker_bundle)
 
     def register_checker(
         self,
@@ -210,10 +214,6 @@ class Configuration:
         Checker with checker_id will be registered to the checker bundle
         identified by the checker_bundle_name.
         """
-        check = config.CheckerType(
-            checker_id=checker_id, min_level=min_level, max_level=max_level
-        )
-
         if self._configuration is None:
             raise RuntimeError(
                 "Adding check to empty configuration. Initialize the config registering first a checker bundle."
@@ -225,21 +225,47 @@ class Configuration:
                 raise RuntimeError(
                     f"Adding check to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
                 )
-            bundle.checkers.append(check)
+            checker = (
+                next(
+                    (
+                        checker
+                        for checker in bundle.checkers
+                        if checker.checker_id == checker_id
+                    ),
+                    None,
+                )
+                if bundle.checkers is not None
+                else None
+            )
+            if checker is None:
+                bundle.checkers.append(
+                    config.CheckerType(
+                        checker_id=checker_id, min_level=min_level, max_level=max_level
+                    )
+                )
+            else:
+                checker.min_level = min_level
+                checker.max_level = max_level
 
     def set_config_param(self, name: str, value: Union[int, float, str]) -> None:
-        param = common.ParamType(name=name, value=value)
-
         if self._configuration is None:
-            self._configuration = config.Config(params=[param])
+            self._configuration = config.Config(
+                params=[common.ParamType(name=name, value=value)]
+            )
         else:
-            self._configuration.params.append(param)
+            param = next(
+                (param for param in self._configuration.params if name == param.name),
+                None,
+            )
+            if param is None:
+                param = common.ParamType(name=name, value=value)
+                self._configuration.params.append(param)
+            else:
+                param.value = value
 
     def set_checker_bundle_param(
         self, checker_bundle_name: str, name: str, value: Union[int, float, str]
     ) -> None:
-        param = common.ParamType(name=name, value=value)
-
         if self._configuration is None:
             raise RuntimeError(
                 "Adding param to empty configuration. Initialize the config registering first an initial element."
@@ -258,7 +284,12 @@ class Configuration:
                 raise RuntimeError(
                     f"Adding param to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
                 )
-            bundle.params.append(param)
+            param = next((param for param in bundle.params if name == param.name), None)
+            if param is None:
+                param = common.ParamType(name=name, value=value)
+                bundle.params.append(param)
+            else:
+                param.value = value
 
     def set_checker_param(
         self,
@@ -267,8 +298,6 @@ class Configuration:
         name: str,
         value: Union[str, int, float],
     ) -> None:
-        param = common.ParamType(name=name, value=value)
-
         if self._configuration is None:
             raise RuntimeError(
                 "Adding param to empty configuration. Initialize the config registering first an initial element."
@@ -288,12 +317,28 @@ class Configuration:
                     f"Adding param to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
                 )
 
-            check = next(
-                (check for check in bundle.checkers if check.checker_id == checker_id),
-                None,
-            )
-            if check is None:
-                raise RuntimeError(
-                    f"Adding param to non-existent '{checker_bundle_name}' checker bundle. Register first the checker bundle."
+            checker = (
+                next(
+                    (
+                        checker
+                        for checker in bundle.checkers
+                        if checker.checker_id == checker_id
+                    ),
+                    None,
                 )
-            check.params.append(param)
+                if bundle.checkers is not None
+                else None
+            )
+            if checker is None:
+                raise RuntimeError(
+                    f"Adding param to non-existent '{checker_id}' checker. Register first the checker."
+                )
+
+            param = next(
+                (param for param in checker.params if name == param.name), None
+            )
+            if param is None:
+                param = common.ParamType(name=name, value=value)
+                checker.params.append(param)
+            else:
+                param.value = value
