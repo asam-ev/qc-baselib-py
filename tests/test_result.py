@@ -273,7 +273,7 @@ def test_create_issue_with_unregistered_rule_id() -> None:
         )
 
 
-def test_create_rule_id_validation() -> None:
+def test_register_rule_id_validation() -> None:
     result = Result()
 
     result.register_checker_bundle(
@@ -289,6 +289,25 @@ def test_create_rule_id_validation() -> None:
         checker_id="TestChecker",
         description="Test checker",
         summary="Executed evaluation",
+    )
+
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="DemoClass.field.is_set",
+    )
+
+    # Test for non-ASCII and non-BMP letters in rule_full_name, i.e. U+00E4 (ä), U+00F6 (ö), U+00FC (ü), U+10403 (𐐃)
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="DemoClass.field.is_set.äöü_𐐃",
     )
 
     with pytest.raises(
@@ -341,6 +360,32 @@ def test_create_rule_id_validation() -> None:
             standard="qc",
             definition_setting="1.0.0",
             rule_full_name="",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nrule_full_name\n.* String should match pattern .*",
+    ) as exc_info:
+        rule_uid = result.register_rule(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            emanating_entity="test.com",
+            standard="qc",
+            definition_setting="1.0.0",
+            rule_full_name="0demo.rule",
+        )
+
+    with pytest.raises(
+        ValidationError,
+        match=r".*\nrule_full_name\n.* String should match pattern .*",
+    ) as exc_info:
+        rule_uid = result.register_rule(
+            checker_bundle_name="TestBundle",
+            checker_id="TestChecker",
+            emanating_entity="test.com",
+            standard="qc",
+            definition_setting="1.0.0",
+            rule_full_name="demo rule",
         )
 
 
@@ -1441,7 +1486,7 @@ def test_result_register_rule_by_uid() -> None:
     assert rules[0].rule_uid == "test.com:qc:1.0.0:qwerty.qwerty"
 
 
-def test_create_rule_id_validation() -> None:
+def test_register_rule_by_uid_id_validation() -> None:
     result = Result()
 
     result.register_checker_bundle(
