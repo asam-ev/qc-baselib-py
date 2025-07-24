@@ -832,6 +832,8 @@ def test_all_checkers_completed_without_issue() -> None:
         description="",
     )
 
+    assert result_report.all_checkers_completed_without_issue() == False
+
     assert result_report.all_checkers_completed_without_issue({"ThirdChecker"}) == False
 
     assert (
@@ -847,6 +849,7 @@ def test_all_checkers_completed_without_issue() -> None:
         status=StatusType.COMPLETED,
     )
 
+    assert result_report.all_checkers_completed_without_issue() == False
     assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == True
     assert (
         result_report.all_checkers_completed_without_issue(
@@ -861,6 +864,7 @@ def test_all_checkers_completed_without_issue() -> None:
         status=StatusType.SKIPPED,
     )
 
+    assert result_report.all_checkers_completed_without_issue() == False
     assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == False
 
     result_report.set_checker_status(
@@ -869,6 +873,7 @@ def test_all_checkers_completed_without_issue() -> None:
         status=StatusType.ERROR,
     )
 
+    assert result_report.all_checkers_completed_without_issue() == False
     assert result_report.all_checkers_completed_without_issue({"FirstChecker"}) == False
 
     result_report.set_checker_status(
@@ -883,12 +888,14 @@ def test_all_checkers_completed_without_issue() -> None:
         status=StatusType.COMPLETED,
     )
 
+    assert result_report.all_checkers_completed_without_issue() == True
     assert (
         result_report.all_checkers_completed_without_issue(
             {"FirstChecker", "SecondChecker"}
         )
         == True
     )
+    assert result_report.all_checkers_completed_without_issue({"ThirdChecker"}) == False
 
     rule_uid_1 = result_report.register_rule(
         checker_bundle_name="TestBundle",
@@ -907,6 +914,7 @@ def test_all_checkers_completed_without_issue() -> None:
         rule_uid=rule_uid_1,
     )
 
+    assert result_report.all_checkers_completed_without_issue() == False
     assert (
         result_report.all_checkers_completed_without_issue(
             {"FirstChecker", "SecondChecker"}
