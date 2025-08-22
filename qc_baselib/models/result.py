@@ -6,7 +6,7 @@
 import enum
 
 
-from typing import List, Any, Set
+from typing import List, Any, Set, Optional
 from pydantic import model_validator
 from pydantic_xml import BaseXmlModel, attr, element, computed_element
 from lxml import etree
@@ -23,6 +23,17 @@ class XMLLocationType(BaseXmlModel):
     xpath: str = attr(name="xpath")
 
 
+class MessageLocationType(BaseXmlModel):
+    index: int = attr(name="index")
+    channel: Optional[str] = attr(name="channel", default=None)
+    field: Optional[str] = attr(name="field", default=None)
+    time: Optional[float] = attr(name="time", default=None)
+
+
+class TimeLocationType(BaseXmlModel):
+    time: float = attr(name="time")
+
+
 class InertialLocationType(BaseXmlModel):
     x: float = attr(name="x")
     y: float = attr(name="y")
@@ -30,8 +41,17 @@ class InertialLocationType(BaseXmlModel):
 
 
 class FileLocationType(BaseXmlModel):
-    column: int = attr(name="column")
-    row: int = attr(name="row")
+    column: Optional[int] = attr(name="column", default=None)
+    row: Optional[int] = attr(name="row", default=None)
+    offset: Optional[int] = attr(name="offset", default=None)
+
+    @model_validator(mode="after")
+    def check_at_least_one_attribute(self) -> Any:
+        if self.column is None and self.row is None and self.offset is None:
+            raise ValueError(
+                "FileLocationType requires at least one of the attributes: column, row, or offset"
+            )
+        return self
 
 
 class LocationType(BaseXmlModel, search_mode="unordered"):
@@ -39,6 +59,10 @@ class LocationType(BaseXmlModel, search_mode="unordered"):
     xml_location: List[XMLLocationType] = element(tag="XMLLocation", default=[])
     inertial_location: List[InertialLocationType] = element(
         tag="InertialLocation", default=[]
+    )
+    time_location: List[TimeLocationType] = element(tag="TimeLocation", default=[])
+    message_location: List[MessageLocationType] = element(
+        tag="MessageLocation", default=[]
     )
     description: str = attr(name="description")
 
@@ -48,10 +72,12 @@ class LocationType(BaseXmlModel, search_mode="unordered"):
             len(self.file_location)
             + len(self.xml_location)
             + len(self.inertial_location)
+            + len(self.time_location)
+            + len(self.message_location)
             < 1
         ):
             raise ValueError(
-                "LocationType require at least one element of type XMLLocationType / FileLocationType / RoadLocationType"
+                "LocationType requires at least one element of type XMLLocationType / FileLocationType / InertialLocationType / TimeLocationType / MessageLocationType"
             )
         return self
 

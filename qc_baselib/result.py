@@ -474,13 +474,15 @@ class Result:
         checker_bundle_name: str,
         checker_id: str,
         issue_id: int,
-        row: int,
-        column: int,
+        row: Optional[int],
+        column: Optional[int],
         description: str,
+        offset: Optional[int] = None,
     ) -> None:
         file_location = result.FileLocationType(
             row=row,
             column=column,
+            offset=offset,
         )
 
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
@@ -537,6 +539,51 @@ class Result:
         issue.locations.append(
             result.LocationType(
                 inertial_location=[inertial_location], description=description
+            )
+        )
+
+    def add_time_location(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        issue_id: int,
+        time: float,
+        description: str,
+    ) -> None:
+        time_location = result.TimeLocationType(time=time)
+
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
+
+        issue.locations.append(
+            result.LocationType(time_location=[time_location], description=description)
+        )
+
+    def add_message_location(
+        self,
+        checker_bundle_name: str,
+        checker_id: str,
+        issue_id: int,
+        index: int,
+        channel: Optional[str] = None,
+        field: Optional[str] = None,
+        time: Optional[float] = None,
+        description: str = "",
+    ) -> None:
+        message_location = result.MessageLocationType(
+            index=index, channel=channel, field=field, time=time
+        )
+
+        bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
+
+        checker = self._get_checker(bundle=bundle, checker_id=checker_id)
+        issue = self._get_issue(checker=checker, issue_id=issue_id)
+
+        issue.locations.append(
+            result.LocationType(
+                message_location=[message_location], description=description
             )
         )
 
