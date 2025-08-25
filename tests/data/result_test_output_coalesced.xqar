@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<CheckerResults version="0.0.1">
+  <CheckerBundle build_date="2024-05-31" description="Example checker bundle" name="TestBundle" version="0.0.1" summary="Tested example checkers. Extra summary for checker bundle. 1 checker(s) are executed. 1 checker(s) are completed. 0 checker(s) are skipped. 0 checker(s) have internal error and 0 checker(s) do not contain status.">
+    <Checker status="completed" checkerId="TestChecker" description="Test checker" summary="Executed evaluation. Extra summary for checker. 1 issue(s) are found.">
+      <AddressedRule ruleUID="test.com:qc:1.0.0:qwerty.qwerty"/>
+      <Issue issueId="0" description="Issue found at odr" level="3" ruleUID="test.com:qc:1.0.0:qwerty.qwerty">
+        <Locations description="Location for issue">
+          <FileLocation column="0" row="1"/>
+          <XMLLocation xpath="/foo/test/path"/>
+          <InertialLocation x="1.0" y="2.0" z="3.0"/>
+          <TimeLocation time="1.0"/>
+          <MessageLocation index="42" channel="TestChannel" field="SensorView.host_vehicle_id" time="1.0"/>
+        </Locations>
+        <Locations description="Location for issue with offset">
+          <FileLocation offset="6502"/>
+        </Locations>
+        <Locations description="Location for issue with list">
+          <XMLLocation xpath="/foo/test/path"/>
+          <XMLLocation xpath="/bar/test/path"/>
+        </Locations>
+      </Issue>
+    </Checker>
+  </CheckerBundle>
+</CheckerResults>
