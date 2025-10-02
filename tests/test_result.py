@@ -15,9 +15,12 @@ from qc_baselib import Result, IssueSeverity, StatusType, Configuration
 
 DEMO_REPORT_PATH = "tests/data/demo_checker_bundle.xqar"
 EXTENDED_DEMO_REPORT_PATH = "tests/data/demo_checker_bundle_extended.xqar"
-EXAMPLE_OUTPUT_REPORT_PATH = "tests/data/result_test_output.xqar"
+EXAMPLE_OUTPUT_COALESCED_REPORT_PATH = "tests/data/result_test_output_coalesced.xqar"
+EXAMPLE_OUTPUT_UNCOALESCED_REPORT_PATH = "tests/data/result_test_output.xqar"
 EXAMPLE_OUTPUT_MARKDOWN_DOC_PATH = "tests/data/result_markdown_docs.md"
-TEST_REPORT_OUTPUT_PATH = "tests/result_test_output.xqar"
+TEST_REPORT_OUTPUT_COALESCED_PATH = "tests/result_test_output_coalesced.xqar"
+TEST_REPORT_OUTPUT_UNCOALESCED_PATH = "tests/result_test_output.xqar"
+TEST_REPORT_OUTPUT_DSINFO_PATH = "tests/result_test_output_dsinfo.xqar"
 TEST_MARKDOWN_DOC_OUTPUT_PATH = "tests/result_markdown_docs.md"
 
 
@@ -47,7 +50,7 @@ def test_load_result_from_extended_file() -> None:
     assert len(result._report_results.to_xml()) > 0
 
 
-def test_result_write() -> None:
+def test_result_write_coalesced() -> None:
     result = Result()
 
     result.register_checker_bundle(
@@ -155,18 +158,147 @@ def test_result_write() -> None:
         content="Extra summary for checker.",
     )
 
-    result.write_to_file(TEST_REPORT_OUTPUT_PATH, generate_summary=True)
+    result.write_to_file(TEST_REPORT_OUTPUT_COALESCED_PATH, generate_summary=True)
 
     example_xml_text = ""
     output_xml_text = ""
-    with open(EXAMPLE_OUTPUT_REPORT_PATH, "r") as result_xml_file:
+    with open(EXAMPLE_OUTPUT_COALESCED_REPORT_PATH, "r") as result_xml_file:
         example_xml_text = result_xml_file.read()
-    with open(TEST_REPORT_OUTPUT_PATH, "r") as result_xml_file:
+    with open(TEST_REPORT_OUTPUT_COALESCED_PATH, "r") as result_xml_file:
         output_xml_text = result_xml_file.read()
 
     assert output_xml_text == example_xml_text
 
-    os.remove(TEST_REPORT_OUTPUT_PATH)
+    os.remove(TEST_REPORT_OUTPUT_COALESCED_PATH)
+
+
+def test_result_write_uncoalesced() -> None:
+    result = Result()
+
+    result.register_checker_bundle(
+        name="TestBundle",
+        build_date="2024-05-31",
+        description="Example checker bundle",
+        version="0.0.1",
+        summary="Tested example checkers.",
+    )
+
+    result.register_checker(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Test checker",
+        summary="Executed evaluation.",
+    )
+
+    rule_uid = result.register_rule(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        emanating_entity="test.com",
+        standard="qc",
+        definition_setting="1.0.0",
+        rule_full_name="qwerty.qwerty",
+    )
+
+    issue_id = result.register_issue(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        description="Issue found at odr",
+        level=IssueSeverity.INFORMATION,
+        rule_uid=rule_uid,
+    )
+
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=1,
+        column=0,
+        description="Location for issue",
+        coalesce=False,
+    )
+    result.add_file_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        row=None,
+        column=None,
+        description="Location for issue with offset",
+        offset=6502,
+        coalesce=False,
+    )
+    result.add_xml_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        xpath="/foo/test/path",
+        description="Location for issue",
+        coalesce=False,
+    )
+    result.add_xml_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        xpath=["/foo/test/path", "/bar/test/path"],
+        description="Location for issue with list",
+        coalesce=False,
+    )
+    result.add_inertial_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        x=1.0,
+        y=2.0,
+        z=3.0,
+        description="Location for issue",
+        coalesce=False,
+    )
+    result.add_time_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        time=1.0,
+        description="Location for issue",
+        coalesce=False,
+    )
+    result.add_message_location(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        issue_id=issue_id,
+        index=42,
+        channel="TestChannel",
+        field="SensorView.host_vehicle_id",
+        time=1.0,
+        description="Location for issue",
+        coalesce=False,
+    )
+
+    result.set_checker_status(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        status=StatusType.COMPLETED,
+    )
+
+    result.add_checker_bundle_summary(
+        checker_bundle_name="TestBundle", content="Extra summary for checker bundle."
+    )
+    result.add_checker_summary(
+        checker_bundle_name="TestBundle",
+        checker_id="TestChecker",
+        content="Extra summary for checker.",
+    )
+
+    result.write_to_file(TEST_REPORT_OUTPUT_UNCOALESCED_PATH, generate_summary=True)
+
+    example_xml_text = ""
+    output_xml_text = ""
+    with open(EXAMPLE_OUTPUT_UNCOALESCED_REPORT_PATH, "r") as result_xml_file:
+        example_xml_text = result_xml_file.read()
+    with open(TEST_REPORT_OUTPUT_UNCOALESCED_PATH, "r") as result_xml_file:
+        output_xml_text = result_xml_file.read()
+
+    assert output_xml_text == example_xml_text
+
+    os.remove(TEST_REPORT_OUTPUT_UNCOALESCED_PATH)
 
 
 def test_result_bundles_load(loaded_result: Result):
@@ -545,10 +677,10 @@ def test_domain_specific_info_add():
         xml_info=[xml_info, xml_info],
     )
 
-    result.write_to_file(TEST_REPORT_OUTPUT_PATH)
+    result.write_to_file(TEST_REPORT_OUTPUT_DSINFO_PATH)
 
     output_result = Result()
-    output_result.load_from_file(TEST_REPORT_OUTPUT_PATH)
+    output_result.load_from_file(TEST_REPORT_OUTPUT_DSINFO_PATH)
 
     domain_specific_xml_element = output_result.get_domain_specific_info(
         checker_bundle_name="TestBundle",
@@ -587,7 +719,7 @@ def test_domain_specific_info_add():
 
     assert domain_specific_xml_text == xml_info_text
 
-    os.remove(TEST_REPORT_OUTPUT_PATH)
+    os.remove(TEST_REPORT_OUTPUT_DSINFO_PATH)
 
 
 def test_get_issue_by_rule_uid() -> None:

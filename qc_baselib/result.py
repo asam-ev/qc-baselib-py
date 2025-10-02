@@ -478,6 +478,7 @@ class Result:
         column: Optional[int],
         description: str,
         offset: Optional[int] = None,
+        coalesce: bool = True,
     ) -> None:
         file_location = result.FileLocationType(
             row=row,
@@ -490,9 +491,21 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(
-            result.LocationType(file_location=[file_location], description=description)
+        existing_location = (
+            next(
+                (loc for loc in issue.locations if loc.description == description), None
+            )
+            if coalesce
+            else None
         )
+        if existing_location is not None:
+            existing_location.file_location.append(file_location)
+        else:
+            issue.locations.append(
+                result.LocationType(
+                    file_location=[file_location], description=description
+                )
+            )
 
     def add_xml_location(
         self,
@@ -501,6 +514,7 @@ class Result:
         issue_id: int,
         xpath: Union[str, List[str]],
         description: str,
+        coalesce: bool = True,
     ) -> None:
         xml_locations = []
 
@@ -515,9 +529,19 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(
-            result.LocationType(xml_location=xml_locations, description=description)
+        existing_location = (
+            next(
+                (loc for loc in issue.locations if loc.description == description), None
+            )
+            if coalesce
+            else None
         )
+        if existing_location is not None:
+            existing_location.xml_location.extend(xml_locations)
+        else:
+            issue.locations.append(
+                result.LocationType(xml_location=xml_locations, description=description)
+            )
 
     def add_inertial_location(
         self,
@@ -528,6 +552,7 @@ class Result:
         y: float,
         z: float,
         description: str,
+        coalesce: bool = True,
     ) -> None:
         inertial_location = result.InertialLocationType(x=x, y=y, z=z)
 
@@ -536,11 +561,21 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(
-            result.LocationType(
-                inertial_location=[inertial_location], description=description
+        existing_location = (
+            next(
+                (loc for loc in issue.locations if loc.description == description), None
             )
+            if coalesce
+            else None
         )
+        if existing_location is not None:
+            existing_location.inertial_location.append(inertial_location)
+        else:
+            issue.locations.append(
+                result.LocationType(
+                    inertial_location=[inertial_location], description=description
+                )
+            )
 
     def add_time_location(
         self,
@@ -549,6 +584,7 @@ class Result:
         issue_id: int,
         time: float,
         description: str,
+        coalesce: bool = True,
     ) -> None:
         time_location = result.TimeLocationType(time=time)
 
@@ -557,9 +593,21 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(
-            result.LocationType(time_location=[time_location], description=description)
+        existing_location = (
+            next(
+                (loc for loc in issue.locations if loc.description == description), None
+            )
+            if coalesce
+            else None
         )
+        if existing_location is not None:
+            existing_location.time_location.append(time_location)
+        else:
+            issue.locations.append(
+                result.LocationType(
+                    time_location=[time_location], description=description
+                )
+            )
 
     def add_message_location(
         self,
@@ -571,6 +619,7 @@ class Result:
         field: Optional[str] = None,
         time: Optional[float] = None,
         description: str = "",
+        coalesce: bool = True,
     ) -> None:
         message_location = result.MessageLocationType(
             index=index, channel=channel, field=field, time=time
@@ -581,11 +630,21 @@ class Result:
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         issue = self._get_issue(checker=checker, issue_id=issue_id)
 
-        issue.locations.append(
-            result.LocationType(
-                message_location=[message_location], description=description
+        existing_location = (
+            next(
+                (loc for loc in issue.locations if loc.description == description), None
             )
+            if coalesce
+            else None
         )
+        if existing_location is not None:
+            existing_location.message_location.append(message_location)
+        else:
+            issue.locations.append(
+                result.LocationType(
+                    message_location=[message_location], description=description
+                )
+            )
 
     def add_domain_specific_info(
         self,
