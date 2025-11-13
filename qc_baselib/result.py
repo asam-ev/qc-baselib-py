@@ -4,8 +4,6 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import logging
-
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Union, List, Set, Optional
@@ -397,16 +395,6 @@ class Result:
         bundle = self._get_checker_bundle(checker_bundle_name=checker_bundle_name)
         checker = self._get_checker(bundle=bundle, checker_id=checker_id)
         checker.addressed_rule.append(rule)
-
-        number_of_addressed_rules = len(checker.addressed_rule)
-        if number_of_addressed_rules > 1:
-            logging.warning(
-                f"There are {number_of_addressed_rules} rules registered to the check"
-                f" {checker_id}. A check should address exactly one rule, unless there"
-                " is a strong reason not to. See the following document for more"
-                " information:"
-                " https://github.com/asam-ev/qc-framework/blob/main/doc/manual/checker_library.md#check-characteristics"
-            )
 
         return rule.rule_uid
 
