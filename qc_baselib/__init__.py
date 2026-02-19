@@ -4,7 +4,7 @@
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-__version__ = "1.0.0rc1"
+__version__ = "1.1.0"
 
 
 from .configuration import Configuration as Configuration
